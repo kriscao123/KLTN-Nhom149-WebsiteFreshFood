@@ -10,7 +10,7 @@ const recommendRoutes = require('./src/routes/recommend');
 const interactionRoutes = require('./src/routes/interactions');
 
 const app = express();
-app.use(cors({ origin: ['http://localhost:5173','http://localhost:3000'], credentials: false }));
+app.use(cors({ origin: ['http://localhost:5174'], credentials: true }));
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -22,7 +22,7 @@ app.use('/api/recommend', recommendRoutes);
 app.use('/api/interactions', interactionRoutes);
 
 const port = process.env.PORT || 5000;
-connect().then(() => {
+connect().then(() => { 
   app.listen(port, () => console.log('Backend listening on :' + port));
 }).catch(err => {
   console.error('Mongo connect failed:', err.message);

@@ -1,18 +1,11 @@
-/* Toàn cục */
-body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#f7f7f9;margin:0}
-a{color:#2f6fed;text-decoration:none}
-.container-center{
-  min-height:100vh;
-  display:flex;
-  align-items:center;      /* căn dọc giữa */
-  justify-content:center;  /* căn ngang giữa */
-  padding:24px;
+@import "tailwindcss";
+header {
+    position: sticky; /* Hoặc fixed */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Đảm bảo header luôn nằm trên cùng */
+    background-color: white; /* Hoặc màu nền của bạn */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Tạo bóng cho header */
 }
-.auth-card{background:#fff;border:1px solid #e6e6e6;border-radius:12px;padding:24px;max-width:440px;width:100%}
-.auth-title{margin:0 0 12px 0}
-.form{display:grid;gap:12px}
-label{display:grid;gap:6px;font-size:14px}
-input{padding:10px;border:1px solid #d9d9d9;border-radius:8px}
-button{padding:10px 14px;border:0;border-radius:8px;background:#2f6fed;color:#fff;cursor:pointer}
-button[disabled]{opacity:.6;cursor:default}
-.error{color:#d33;margin:0}
+

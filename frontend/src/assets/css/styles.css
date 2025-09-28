@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    scroll-behavior: smooth;
+}
+
+.product-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+}
+
+.badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 12px;
+    background-color: #FF6B6B;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+input, select, textarea {
+    font-size: 16px !important;
+}
+
+.dark body {
+    background-color: #181818;
+    color: #F5F5F5;
+}
+
+.dark .card {
+    background-color: #2D2D2D;
+}
+/* Ẩn mũi tên trên Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Ẩn trên Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+}

@@ -2,6 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Role = require('../models/Role')
 const AuthOtp = require('../models/AuthOtp');
 const { sendEmail } = require('../utils/mailer');
 const { sendSms } = require('../utils/sms');
@@ -87,7 +88,7 @@ router.post('/verify-otp', async (req, res) => {
  * -> tạo user mới (email hoặc phone lấy từ otpToken)
  */
 router.post('/register', async (req, res) => {
-  const { otpToken, name, password } = req.body;
+  const { otpToken, fullName, password, roleName } = req.body;
   if (!otpToken) return res.status(401).json({ message: 'Thiếu otpToken' });
 
   let ident;
@@ -99,7 +100,13 @@ router.post('/register', async (req, res) => {
   if (exists) return res.status(409).json({ message: 'Tài khoản đã tồn tại' });
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const u = await User.create({ ...where, passwordHash, name });
+  const username=ident.email?ident.email:ident.phone_number
+  const role=await Role.findOne({roleName:roleName})
+  if (!role) {
+            return res.status(400).json({ message: 'Role not found' });
+        }
+  const roleId=role._id
+  const u = await User.create({ ...where, passwordHash, username, roleId, fullName });
   res.json({ id: u._id });
 });
 
@@ -113,7 +120,7 @@ router.post('/login', async (req, res) => {
   const ok = await bcrypt.compare(password, u.passwordHash || '');
   if (!ok) return res.status(401).json({ message: 'Sai thông tin đăng nhập' });
   const token = jwt.sign({ id: u._id, email: u.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
-  res.json({ token, profile: { id: u._id, email: u.email, name: u.name } });
+  res.json({ token, profile: { id: u._id, email: u.email, name: u.name, phone: u.phone } });
 });
 
 module.exports = router;
