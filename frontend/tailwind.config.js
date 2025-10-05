@@ -34,6 +34,13 @@ module.exports = {
                 'gray-300': '#D1D5DB',
                 'gray-600': '#4B5563',
                 'gray-800': '#1F2937',
+                primary: "#28a745",   // Xanh lá cây cho các phần tử chính
+                secondary: "#fd7e14", // Cam nhạt cho các phần tử phụ
+                background: "#f8f9fa", // Xám nhạt cho nền
+                textPrimary: "#343a40", // Màu chữ chính (đen đậm)
+                textSecondary: "#6c757d", // Màu chữ phụ (xám nhạt)
+                buttonHover: "#218838", // Màu hover cho nút chính (darker xanh lá cây)
+                buttonActive: "#d39e00", // Màu hover cho nút phụ (darker cam)
             },
         },
     },
