@@ -7,10 +7,10 @@ function Footer() {
             <div className="container mx-auto px-4 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <div>
-                        <h3 className="text-xl font-bold mb-4">HomeGoods</h3>
+                        <h3 className="text-xl font-bold mb-4">NH Food</h3>
                         <p className="text-gray-400 mb-4">
-                            Chuyên cung cấp các sản phẩm đồ gia dụng chất lượng cao, giúp không gian sống của bạn trở nên tiện nghi và
-                            hiện đại.
+                            Chuyên cung cấp các thực phẩm sạch chất lượng cao, giúp trải nghiệm ăn uống của bạn trở nên tươi mới và
+                            khỏe mạnh.
                         </p>
                         <div className="flex space-x-4">
                             <Link to="#" className="text-gray-400 hover:text-white">
@@ -31,7 +31,7 @@ function Footer() {
                     <div>
                         <h3 className="text-xl font-bold mb-4">Danh mục sản phẩm</h3>
                         <ul className="space-y-2">
-                            <li>
+                            {/* <li>
                                 <Link to="/products?category=kitchen" className="text-gray-400 hover:text-white">
                                     Đồ dùng nhà bếp
                                 </Link>
@@ -55,7 +55,7 @@ function Footer() {
                                 <Link to="/products?category=decoration" className="text-gray-400 hover:text-white">
                                     Đồ trang trí
                                 </Link>
-                            </li>
+                            </li> */}
                         </ul>
                     </div>
 
@@ -99,18 +99,18 @@ function Footer() {
                             </li>
                             <li className="flex items-center">
                                 <Phone className="w-5 h-5 mr-2 text-gray-400" />
-                                <span className="text-gray-400">+84326829327</span>
+                                <span className="text-gray-400">+84827319452</span>
                             </li>
                             <li className="flex items-center">
                                 <Mail className="w-5 h-5 mr-2 text-gray-400" />
-                                <span className="text-gray-400">trancongtinh20042004@gmail.com</span>
+                                <span className="text-gray-400">nhanhoa.cao@gmail.com</span>
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-                    <p>&copy; {new Date().getFullYear()} HomeCraf. Tất cả quyền được bảo lưu.</p>
+                    <p>&copy; {new Date().getFullYear()} NH Food. Tất cả quyền được bảo lưu.</p>
                 </div>
             </div>
         </footer>

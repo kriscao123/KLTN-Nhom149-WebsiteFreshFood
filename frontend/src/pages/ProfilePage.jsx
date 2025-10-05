@@ -88,7 +88,7 @@ const ProfilePage = () => {
                 setUsername(storedUser.username);
                 setEmail(storedUser.email);
                 setPhone(storedUser.phone || "");
-                setAddress(storedUser.address || "");
+                setAddress(storedUser.address.street+storedUser.address.district+storedUser.address.city || "");
 
                 // Fetch orders for the user
                 const orderResponse = await api.get(`/orders/all/user/${storedUser.email}`);

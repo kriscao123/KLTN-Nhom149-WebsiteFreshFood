@@ -1,19 +1,17 @@
 const mongoose = require('mongoose');
+
+// Định nghĩa schema cho Product
 const productSchema = new mongoose.Schema({
-  sku: { type: String, index: true },
-  title: { type: String, index: 'text' },
-  description: { type: String, index: 'text' },
-  brand: String,
-  origin_country: String,
-  storage_temp: String,
-  shelf_life_days: Number,
-  images: [String],
-  diet_tags: [String],
-  allergens: [String],
-  categories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }]
-},{ timestamps: true });
+  productName: { type: String, required: true },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+  isActive: { type: Boolean, default: true },
+  reorderLevel: { type: Number, default: 10 },
+  supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: true },
+  unitPrice: { type: Number, required: true },
+  unitWeight: { type: Number, required: true },
+  unitsInStock: { type: Number, default: 0 },
+  unitsOnOrder: { type: Number, default: 0 }
+}, { timestamps: true });
 
-productSchema.index({ diet_tags: 1 });
-productSchema.index({ allergens: 1 });
-
+// Export model
 module.exports = mongoose.model('Product', productSchema);

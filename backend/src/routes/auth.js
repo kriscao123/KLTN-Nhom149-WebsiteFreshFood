@@ -88,7 +88,7 @@ router.post('/verify-otp', async (req, res) => {
  * -> tạo user mới (email hoặc phone lấy từ otpToken)
  */
 router.post('/register', async (req, res) => {
-  const { otpToken, fullName, password, roleName } = req.body;
+  const { otpToken, fullName, password, roleName, address, phone } = req.body;
   if (!otpToken) return res.status(401).json({ message: 'Thiếu otpToken' });
 
   let ident;
@@ -106,7 +106,7 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Role not found' });
         }
   const roleId=role._id
-  const u = await User.create({ ...where, passwordHash, username, roleId, fullName });
+  const u = await User.create({ ...where, passwordHash, username, roleId, fullName, address, phone });
   res.json({ id: u._id });
 });
 
@@ -114,13 +114,13 @@ router.post('/register', async (req, res) => {
  * body: { email? , phone_number? , password }
  */
 router.post('/login', async (req, res) => {
-  const { email, phone_number, password } = req.body;
+  const { email, phone_number, password} = req.body;
   const u = await User.findOne(email ? { email: email?.toLowerCase() } : { phone_number });
   if (!u) return res.status(401).json({ message: 'Sai thông tin đăng nhập' });
   const ok = await bcrypt.compare(password, u.passwordHash || '');
   if (!ok) return res.status(401).json({ message: 'Sai thông tin đăng nhập' });
   const token = jwt.sign({ id: u._id, email: u.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
-  res.json({ token, profile: { id: u._id, email: u.email, name: u.name, phone: u.phone } });
+  res.json({ token, profile: { id: u._id, email: u.email, name: u.name, phone: u.phone, address: u.address } });
 });
 
 module.exports = router;

@@ -24,9 +24,6 @@ const roleSchema = new Schema({
   }
 });
 
-// Tạo chỉ mục cho trường roleName để tối ưu hóa tìm kiếm
-roleSchema.index({ roleName: 1 }, { unique: true });
-
 // Tạo model từ schema
 const Role = mongoose.model('roles', roleSchema);
 

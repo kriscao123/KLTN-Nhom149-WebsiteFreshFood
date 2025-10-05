@@ -70,10 +70,6 @@ const userSchema = new Schema({
   }
 });
 
-// Tạo index cho username và email để tăng hiệu suất tìm kiếm
-userSchema.index({ username: 1 }, { unique: true });
-userSchema.index({ email: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } }); // index email không phân biệt chữ hoa chữ thường
-
 // Tạo model từ userSchema
 const User = mongoose.model('users', userSchema);
 

@@ -10,7 +10,5 @@ const authOtpSchema = new mongoose.Schema({
   status: { type: String, enum: ['active','used','expired'], default: 'active' }
 }, { timestamps: true });
 
-// TTL index tự xoá khi hết hạn (Mongo sẽ xóa khi expiresAt < now)
-authOtpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model('AuthOtp', authOtpSchema);

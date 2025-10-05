@@ -46,7 +46,7 @@ const LoginPage = () => {
 
         try {
   // Đăng nhập bằng email (hoặc thay bằng phone_number nếu dùng SĐT)
-  const response = await api.post("/auth/login", { email, password });
+  const response = await api.post("/auth/login", { email, password});
 
   const { token, profile } = response.data || {};
   if (token) localStorage.setItem("token", token);
@@ -55,12 +55,12 @@ const LoginPage = () => {
     userId: profile?.id,
     username: profile?.name || (profile?.email ? profile.email.split("@")[0] : "user"),
     email: profile?.email || null,
+    phone: profile?.phone || null,
+    address: profile?.address || null,
     role: "CUSTOMER", // backend chưa có role → gán mặc định để App.jsx hoạt động
   };
 
-  localStorage.setItem("user", JSON.stringify(user));
-  localStorage.setItem("isLoggedIn", "true");
-  localStorage.setItem("userRole", user.role);
+  saveUserToLocalStorage(user)
 
   navigate("/");
         } catch (error) {

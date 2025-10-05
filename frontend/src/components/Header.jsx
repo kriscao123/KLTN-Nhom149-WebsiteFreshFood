@@ -151,7 +151,7 @@ const Header = () => {
         <header className="bg-white shadow-md sticky top-0 z-50">
             {/* Top bar */}
             <div className="bg-gray-900 py-2 px-4 flex justify-between items-center">
-                <div className="font-medium text-white">NH Food</div>
+                <div className="font-medium text-white"><a href="/">NH Food</a></div>
                 <div className="flex items-center gap-4 text-sm">
                     <div className="flex items-center gap-1 text-white">
                         <span>0326-829-327</span>

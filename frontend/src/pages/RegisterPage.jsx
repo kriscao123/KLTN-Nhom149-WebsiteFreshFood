@@ -57,6 +57,26 @@ const RegisterPage = () => {
         setFormData({ ...formData, phone: phoneValue });
     };
 
+    const handleAddressInput = (addressInput) => {
+  // Tách địa chỉ thành các phần
+  const addressParts = addressInput.trim().split(/\s+/); // Sử dụng regex để tách bằng khoảng trắng
+  
+  const street = addressParts.slice(0, addressParts.length - 2).join(' '); // Lấy phần đầu làm street
+  const district = addressParts[addressParts.length - 2]; // Phần gần cuối là district
+  const ward = addressParts[addressParts.length - 1]; // Phần cuối cùng là ward
+  
+  // Nếu muốn mặc định city là "Hồ Chí Minh" hoặc lấy từ input
+  const city = "Hồ Chí Minh"; // Hoặc lấy từ input nếu có
+
+  // Trả về cấu trúc address
+  return {
+    street,
+    city,
+    district,
+    ward
+  };
+};
+
     const handleSendOtp = async (e) => {
   e.preventDefault();
   setErrors({});
@@ -132,7 +152,9 @@ const RegisterPage = () => {
       fullName: formData.fullName,
       password: formData.password,
       roleName: formData.roleName,
-      username:formData.username  // KHÔNG dùng passwordHash
+      username:formData.username ,
+      phone:formData.phone,
+      address: handleAddressInput(formData.address)
     });
 
     // Thành công → chuyển về login
