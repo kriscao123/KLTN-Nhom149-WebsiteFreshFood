@@ -2,6 +2,67 @@ const router = require('express').Router();
 const Product = require('../models/Product');  // Kiểm tra lại import
 const ProductVariant = require('../models/ProductVariant');
 
+router.post('/', async (req, res) => {
+  const { productName, categoryId, isActive, reorderLevel, supplierId, unitPrice, unitWeight, unitsInStock, unitsOnOrder, imageUrl } = req.body;
+  const product = new Product({
+    productName,
+    categoryId,
+    isActive,
+    reorderLevel,
+    supplierId,
+    unitPrice,
+    unitWeight,
+    unitsInStock,
+    unitsOnOrder,
+    imageUrl
+  });
+
+  try {
+    await product.save();
+    res.status(201).json(product);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+
+router.put('/:id', async (req, res) => {
+  const { productName, categoryId, isActive, reorderLevel, supplierId, unitPrice, unitWeight, unitsInStock, unitsOnOrder, imageUrl } = req.body;
+  
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, {
+      productName,
+      categoryId,
+      isActive,
+      reorderLevel,
+      supplierId,
+      unitPrice,
+      unitWeight,
+      unitsInStock,
+      unitsOnOrder,
+      imageUrl
+    }, { new: true });
+
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.status(200).json({ message: 'Product deleted' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
 // Lấy danh sách sản phẩm với các tham số tìm kiếm
 router.get('/', async (req, res) => {
   const { q, tag, allergen, cat } = req.query;
@@ -15,7 +76,7 @@ router.get('/', async (req, res) => {
   try {
     // Tìm sản phẩm theo điều kiện tìm kiếm
     const products = await Product.find(where)
-      .select('_id productName categoryId isActive reorderLevel supplierId unitPrice unitWeight unitsInStock unitsOnOrder')  // Chỉ lấy các trường yêu cầu
+      .select('_id productName categoryId isActive reorderLevel supplierId unitPrice unitWeight unitsInStock unitsOnOrder imageUrl')  // Chỉ lấy các trường yêu cầu
       .limit(100)
       .lean();
     res.json(products);

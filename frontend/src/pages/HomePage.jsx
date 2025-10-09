@@ -16,7 +16,7 @@ const HomePage = () => {
   const [error, setError] = useState(null);
 
   // Import images
-  const images = ["/path/to/img1.png", "/path/to/img2.png", "/path/to/img3.png", "/path/to/img4.png"];  // Cập nhật lại đường dẫn ảnh nếu cần
+  const images = ["/img/bia.png", "/img/bia2.jpeg", "/img/bia3.jpg", "/img/bia4.jpg"];  // Cập nhật lại đường dẫn ảnh nếu cần
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,7 +88,7 @@ const HomePage = () => {
             </p>
             <motion.a
               href="#products"
-              className="inline-flex items-center justify-center px-6 py-3 mt-3 font-medium bg-primary text-white rounded-md shadow-md hover:bg-green-700 transition-all"
+              className="inline-flex items-center justify-center px-6 py-3 mt-3 font-medium bg-green-600 text-white rounded-md shadow-md hover:bg-green-700 transition-all"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >

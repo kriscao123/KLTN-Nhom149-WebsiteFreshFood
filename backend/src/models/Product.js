@@ -10,7 +10,8 @@ const productSchema = new mongoose.Schema({
   unitPrice: { type: Number, required: true },
   unitWeight: { type: Number, required: true },
   unitsInStock: { type: Number, default: 0 },
-  unitsOnOrder: { type: Number, default: 0 }
+  unitsOnOrder: { type: Number, default: 0 },
+  imageUrl: {type: String,required: false }
 }, { timestamps: true });
 
 // Export model
