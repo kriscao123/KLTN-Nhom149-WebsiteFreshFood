@@ -131,26 +131,30 @@ const ProductDetailPage = () => {
   return (
     <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-gray-100">
       {notification && (
-        <div
-          className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
-            notification.type === "success"
-              ? "bg-green-100 text-green-800 border border-green-300"
-              : "bg-red-100 text-red-800 border border-red-300"
-          } animate-slide-in`}
-        >
-          <div className="flex items-center">
-            {notification.type === "success" ? (
-              <CheckCircle size={20} className="text-green-600 mr-3" />
-            ) : (
-              <AlertTriangle size={20} className="text-red-600 mr-3" />
-            )}
-            <p>{notification.message}</p>
-          </div>
-          <button onClick={() => setNotification(null)} className="ml-4 text-gray-600 hover:text-gray-800">
-            <X size={18} />
-          </button>
-        </div>
+  <div
+    className={`fixed top-20 right-4 z-1000 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
+      notification.type === "success"
+        ? "bg-green-100 text-green-800 border border-green-300"
+        : "bg-red-100 text-red-800 border border-red-300"
+    } animate-slide-in`}
+  >
+    <div className="flex items-center">
+      {notification.type === "success" ? (
+        <CheckCircle size={20} className="text-green-600 mr-3" />
+      ) : (
+        <AlertTriangle size={20} className="text-red-600 mr-3" />
       )}
+      <p>{notification.message}</p>
+    </div>
+    <button
+      onClick={() => setNotification(null)}
+      className="ml-4 text-gray-600 hover:text-gray-800"
+    >
+      <X size={18} />
+    </button>
+  </div>
+)}
+
 
       <nav className="flex items-center text-sm text-gray-600 mb-6 bg-white py-3 px-4 rounded-lg shadow-sm">
         <Link to="/" className="hover:text-indigo-600 transition-colors font-medium">
@@ -193,7 +197,7 @@ const ProductDetailPage = () => {
             <p className="text-gray-700 leading-relaxed">{product.description}</p>
 
             <div className="flex flex-wrap gap-3">
-              {["Giao hàng nhanh", "Bảo hành 12 tháng", "Đổi trả trong 7 ngày"].map((feature, index) => (
+              {["Giao hàng nhanh", "Thực phẩm tươi mới", "Vệ sinh ATTP"].map((feature, index) => (
                 <span
                   key={index}
                   className="px-4 py-1 bg-gradient-to-r from-blue-100 to-indigo-100 text-indigo-700 text-sm rounded-full font-medium shadow-sm"

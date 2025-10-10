@@ -4,12 +4,12 @@ import { Link } from 'react-router-dom';
 
 const AboutPage = () => {
   return (
-    <div className="bg-gray-50">
+    <div className="bg-green-50"> {/* Màu nền nhạt, tạo sự nhẹ nhàng và dễ chịu */}
       {/* Hero Section */}
       <section
-        className="bg-primary text-white py-20"
+        className="bg-green-600 text-white py-20"
         style={{
-          backgroundImage: "url('/path/to/hero-image.jpg')",
+          backgroundImage: "url('/path/to/hero-image.jpg')", // Thay ảnh nền phù hợp
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -33,7 +33,7 @@ const AboutPage = () => {
           </motion.p>
           <Link
             to="/products"
-            className="inline-block px-6 py-3 bg-secondary text-white rounded-md font-medium hover:bg-orange-600 transition-all"
+            className="inline-block px-6 py-3 bg-green-700 text-white rounded-md font-medium hover:bg-green-800 transition-all"
           >
             Khám Phá Sản Phẩm
           </Link>
@@ -43,7 +43,7 @@ const AboutPage = () => {
       {/* About Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-semibold text-primary mb-4">Về Chúng Tôi</h2>
+          <h2 className="text-4xl font-semibold text-green-700 mb-4">Về Chúng Tôi</h2>
           <p className="text-lg text-gray-700">
             NH Food là một thương hiệu chuyên cung cấp thực phẩm tươi ngon, sạch và đảm bảo chất lượng từ
             các nhà cung cấp uy tín. Chúng tôi cam kết mang lại cho khách hàng những sản phẩm tốt nhất, với
@@ -54,67 +54,31 @@ const AboutPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="flex flex-col items-center">
             <img
-              src="/path/to/our-farm.jpg"
+              src="/path/to/our-farm.jpg" // Thay ảnh phù hợp
               alt="Nông trại sạch"
               className="w-full h-80 object-cover rounded-lg mb-6"
             />
-            <h3 className="text-2xl font-semibold text-primary mb-4">Nguồn Gốc Thực Phẩm Sạch</h3>
+            <h3 className="text-2xl font-semibold text-green-800 mb-4">Nguồn Gốc Thực Phẩm Sạch</h3>
             <p className="text-lg text-gray-700">
-              Chúng tôi lựa chọn các sản phẩm từ những nông trại sạch, không sử dụng hóa chất độc hại. Mỗi sản phẩm của chúng tôi đều đảm bảo được kiểm tra chất lượng nghiêm ngặt trước khi đến tay khách hàng.
+              Chúng tôi lựa chọn các sản phẩm từ những nông trại sạch, không sử dụng hóa chất độc hại. Mỗi sản
+              phẩm của chúng tôi đều đảm bảo được kiểm tra chất lượng nghiêm ngặt trước khi đến tay khách hàng.
             </p>
           </div>
 
           <div className="flex flex-col items-center">
             <img
-              src="/path/to/our-team.jpg"
-              alt="Nhân viên NH Food"
+              src="/path/to/quality-products.jpg" // Thay ảnh phù hợp
+              alt="Sản phẩm chất lượng"
               className="w-full h-80 object-cover rounded-lg mb-6"
             />
-            <h3 className="text-2xl font-semibold text-primary mb-4">Đội Ngũ Chuyên Nghiệp</h3>
+            <h3 className="text-2xl font-semibold text-green-900 mb-4">Sản Phẩm Chất Lượng</h3>
             <p className="text-lg text-gray-700">
-              Đội ngũ của NH Food luôn làm việc tận tâm để mang đến cho khách hàng những trải nghiệm tốt nhất. Chúng tôi luôn sẵn sàng giải đáp thắc mắc và hỗ trợ bạn trong mọi vấn đề liên quan đến sản phẩm.
+              Mỗi sản phẩm của NH Food đều được chọn lọc kỹ lưỡng từ những nhà cung cấp uy tín, đảm bảo chất
+              lượng và an toàn cho sức khỏe của bạn và gia đình.
             </p>
           </div>
         </div>
       </section>
-
-      {/* Our Values Section */}
-      <section className="bg-gray-100 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-semibold text-primary mb-6">Giá Trị Cốt Lõi Của NH Food</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-            <div className="p-6 bg-white rounded-lg shadow-lg">
-              <h3 className="text-2xl font-semibold text-primary mb-3">Chất Lượng</h3>
-              <p className="text-lg text-gray-700">
-                Chúng tôi cam kết cung cấp sản phẩm tươi ngon, an toàn và đạt tiêu chuẩn chất lượng cao nhất.
-              </p>
-            </div>
-            <div className="p-6 bg-white rounded-lg shadow-lg">
-              <h3 className="text-2xl font-semibold text-primary mb-3">Sự Minh Bạch</h3>
-              <p className="text-lg text-gray-700">
-                Mỗi sản phẩm của NH Food đều có nguồn gốc rõ ràng, và chúng tôi luôn sẵn sàng chia sẻ thông tin về quá trình sản xuất và kiểm tra chất lượng.
-              </p>
-            </div>
-            <div className="p-6 bg-white rounded-lg shadow-lg">
-              <h3 className="text-2xl font-semibold text-primary mb-3">Dịch Vụ Tận Tâm</h3>
-              <p className="text-lg text-gray-700">
-                Đội ngũ của NH Food luôn đặt khách hàng lên hàng đầu, mang đến dịch vụ giao hàng nhanh chóng và sự hỗ trợ tận tình.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer Section */}
-      <footer className="bg-primary text-white py-6">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2025 NH Food. Tất cả quyền lợi được bảo lưu.</p>
-          <div className="mt-4">
-            <Link to="/contact" className="text-secondary hover:underline">Liên Hệ</Link> | 
-            <Link to="/privacy" className="text-secondary hover:underline">Chính Sách Bảo Mật</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

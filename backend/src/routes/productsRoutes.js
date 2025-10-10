@@ -89,7 +89,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const prod = await Product.findById(req.params.id)
-      .select('_id productName categoryId isActive reorderLevel supplierId unitPrice unitWeight unitsInStock unitsOnOrder')  // Chỉ lấy các trường yêu cầu
+      .select('_id productName categoryId isActive reorderLevel supplierId unitPrice unitWeight unitsInStock unitsOnOrder imageUrl')  // Chỉ lấy các trường yêu cầu
       .lean();
     
     if (!prod) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });

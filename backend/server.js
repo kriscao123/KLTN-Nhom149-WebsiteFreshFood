@@ -5,9 +5,10 @@ const morgan = require('morgan');
 const connect = require('./src/db/mongoose');
 
 const authRoutes = require('./src/routes/auth');
-const productRoutes = require('./src/routes/products');
+const productRoutes = require('./src/routes/productsRoutes');
 const recommendRoutes = require('./src/routes/recommend');
 const interactionRoutes = require('./src/routes/interactions');
+const categoryRoutes=require('./src/routes/categoryRoutes');
 
 const app = express();
 app.use(cors({ origin: ['http://localhost:5174'], credentials: true }));
@@ -20,6 +21,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/recommend', recommendRoutes);
 app.use('/api/interactions', interactionRoutes);
+app.use('/api/categories', categoryRoutes);
 
 const port = process.env.PORT || 5000;
 connect().then(() => { 

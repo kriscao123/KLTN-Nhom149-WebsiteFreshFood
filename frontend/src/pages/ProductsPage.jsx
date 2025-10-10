@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard.jsx';
 import { Link } from "react-router-dom";
 import api from '../services/api.js';
+import axios from 'axios';
 
 // Hàm debounce để giảm tần suất gọi hàm tìm kiếm
 const debounce = (func, delay) => {
@@ -24,42 +25,30 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
     const [categories, setCategories] = useState([]);
 
     // Lấy danh sách sản phẩm và danh mục từ backend
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
+    // Lấy danh sách categories khi component được render lần đầu
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/categories')
+      .then((response) => {
+        setCategories(response.data); // Lưu dữ liệu vào state
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching categories:', error);
+      });
+  }, []);
 
-                // Lấy danh mục
-                const categoriesResponse = await api.get('/products/categories');
-                setCategories(categoriesResponse.data);
-
-                // Lấy sản phẩm
-                const productsResponse = await api.get('/products', {
-                    params: {
-                        page: 0,
-                        size: 100,
-                        sort: 'productId,asc'
-                    }
-                });
-                const visibleProducts = productsResponse.data.content.filter(product => {
-                    const hiddenProducts = JSON.parse(localStorage.getItem('hiddenProducts') || '[]');
-                    return !hiddenProducts.includes(product._id);
-                });
-                setAllProducts(visibleProducts);
-            } catch (err) {
-                setError(err.response?.data?.message || 'Không thể lấy dữ liệu');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        setCurrentCategory(selectedCategory);
-    }, [selectedCategory]);
-
+  // Lấy các sản phẩm khi chọn một category
+  useEffect(() => {
+    if (selectedCategory) {
+      axios.get(`http://localhost:5000/api/products?categoryId=${selectedCategory}`)
+        .then((response) => {
+          setAllProducts(response.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching products:', error);
+        });
+    }
+  }, [selectedCategory]);
     // Lọc sản phẩm khi tiêu chí thay đổi
     useEffect(() => {
         filterProducts();
@@ -174,7 +163,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                         >
                             <option value="all">Tất cả danh mục</option>
                             {categories.map(category => (
-                                <option key={category.categoryId} value={category.categoryId}>
+                                <option key={category._id} value={category._id}>
                                     {category.categoryName}
                                 </option>
                             ))}
@@ -222,7 +211,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                     ) : (
                         filteredProducts.map(product => (
                             <div key={product.productId} className="relative">
-                                <Link to={`/product/${product.productId}`} className="block">
+                                <Link to={`/product/${product._id}`} className="block">
                                     <div className={product.quantityInStock === 0 ? 'opacity-50 relative' : ''}>
                                         <ProductCard product={product} />
                                     </div>

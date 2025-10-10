@@ -22,12 +22,12 @@ const ProductCard = ({ product }) => {
                     {/*    className="text-yellow-500 mr-2"*/}
                     {/*    dangerouslySetInnerHTML={{ __html: generateRatingStars(4.5) }} // mặc định 4.5 sao*/}
                     {/*></div>*/}
-                    <span className="text-gray-500 text-sm">Số lượng tồn: {product.quantityInStock}</span>
+                    <span className="text-gray-500 text-sm">Số lượng tồn: {product.unitsInStock}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
                     <span className="font-bold text-blue-600">
-                        {formatPrice(product.originalPrice)}
+                        {formatPrice(product.unitPrice)}
                     </span>
                 </div>
             </div>
