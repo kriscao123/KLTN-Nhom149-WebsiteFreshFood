@@ -97,7 +97,7 @@ const LoginPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-green-100 flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -105,7 +105,7 @@ const LoginPage = () => {
                 className="w-full max-w-md"
             >
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <div className="bg-blue-600 p-6 relative">
+                    <div className="bg-green-600 p-6 relative">
                         <button
                             className="absolute top-6 left-6 text-white hover:text-blue-200 transition-colors"
                             onClick={() => window.history.back()}
@@ -113,7 +113,7 @@ const LoginPage = () => {
                             <ArrowLeft size={20} />
                             <span className="sr-only">Quay lại</span>
                         </button>
-                        <div className="text-center">
+                        <div className="text-center ">
                             <h1 className="text-2xl font-bold text-white">Đăng nhập</h1>
                             <p className="text-blue-100 mt-2">Đăng nhập để tiếp tục mua sắm</p>
                         </div>
@@ -144,7 +144,7 @@ const LoginPage = () => {
                                             }}
                                             className={`block w-full pl-10 pr-3 py-2.5 border ${
                                                 errors.email ? "border-red-500" : "border-gray-300"
-                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500`}
                                             placeholder="your.email@example.com"
                                         />
                                     </div>
@@ -155,7 +155,7 @@ const LoginPage = () => {
                                         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                             Mật khẩu
                                         </label>
-                                        <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
+                                        <Link to="/forgot-password" className="text-sm text-green-600 hover:text-green-800">
                                             Quên mật khẩu?
                                         </Link>
                                     </div>
@@ -178,7 +178,7 @@ const LoginPage = () => {
                                             }}
                                             className={`block w-full pl-10 pr-10 py-2.5 border ${
                                                 errors.password ? "border-red-500" : "border-gray-300"
-                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500`}
                                             placeholder="••••••••"
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -210,7 +210,7 @@ const LoginPage = () => {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                                        className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
                                             isLoading ? "opacity-70 cursor-not-allowed" : ""
                                         }`}
                                     >
@@ -301,7 +301,7 @@ const LoginPage = () => {
                         <div className="mt-6 text-center">
                             <p className="text-sm text-gray-600">
                                 Chưa có tài khoản?{" "}
-                                <a href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+                                <a href="/register" className="font-medium text-green-600 hover:text-green-500">
                                     Đăng ký ngay
                                 </a>
                             </p>

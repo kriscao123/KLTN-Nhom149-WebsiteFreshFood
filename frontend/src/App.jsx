@@ -96,7 +96,7 @@ export default function App() {
     }
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <div className="bg-green-50 dark:bg-gray-900 min-h-screen">
             <Router>
                 <Routes>
                     {/* Các route công khai với UserLayout */}

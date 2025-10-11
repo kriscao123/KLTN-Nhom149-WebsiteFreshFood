@@ -3,27 +3,27 @@ import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from "luci
 
 function Footer() {
     return (
-        <footer className="bg-gray-900 text-white">
+        <footer className="bg-green-600 text-white">
             <div className="container mx-auto px-4 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <div>
                         <h3 className="text-xl font-bold mb-4">NH Food
                         </h3>
-                        <p className="text-gray-400 mb-4">
+                        <p className="text-gray-300 mb-4">
                             Chuyên cung cấp các thực phẩm sạch chất lượng cao, giúp trải nghiệm ăn uống của bạn trở nên tươi mới và
                             khỏe mạnh.
                         </p>
-                        <div className="flex space-x-4">
-                            <Link to="#" className="text-gray-400 hover:text-white">
+                        <div className="flex space-x-4 text-gray-300">
+                            <Link to="#" className=" hover:text-white">
                                 <Facebook className="w-5 h-5" />
                             </Link>
-                            <Link to="#" className="text-gray-400 hover:text-white">
+                            <Link to="#" className=" hover:text-white">
                                 <Instagram className="w-5 h-5" />
                             </Link>
-                            <Link to="#" className="text-gray-400 hover:text-white">
+                            <Link to="#" className=" hover:text-white">
                                 <Twitter className="w-5 h-5" />
                             </Link>
-                            <Link to="#" className="text-gray-400 hover:text-white">
+                            <Link to="#" className=" hover:text-white">
                                 <Youtube className="w-5 h-5" />
                             </Link>
                         </div>
@@ -62,29 +62,29 @@ function Footer() {
 
                     <div>
                         <h3 className="text-xl font-bold mb-4">Thông tin</h3>
-                        <ul className="space-y-2">
+                        <ul className="space-y-2 text-gray-300">
                             <li>
-                                <Link to="/about" className="text-gray-400 hover:text-white">
+                                <Link to="/about" className="hover:text-white">
                                     Về chúng tôi
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/privacy-policy" className="text-gray-400 hover:text-white">
+                                <Link to="/privacy-policy" className=" hover:text-white">
                                     Chính sách bảo mật
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/terms" className="text-gray-400 hover:text-white">
+                                <Link to="/terms" className=" hover:text-white">
                                     Điều khoản sử dụng
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/return-policy" className="text-gray-400 hover:text-white">
+                                <Link to="/return-policy" className=" hover:text-white">
                                     Chính sách đổi trả
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/faq" className="text-gray-400 hover:text-white">
+                                <Link to="/faq" className=" hover:text-white">
                                     Hướng dẫn mua hàng
                                 </Link>
                             </li>
@@ -93,24 +93,24 @@ function Footer() {
 
                     <div>
                         <h3 className="text-xl font-bold mb-4">Liên hệ</h3>
-                        <ul className="space-y-4">
+                        <ul className="space-y-4 text-gray-300">
                             <li className="flex items-start">
-                                <MapPin className="w-5 h-5 mr-2 text-gray-400 mt-0.5" />
-                                <span className="text-gray-400">123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh</span>
+                                <MapPin className="w-5 h-5 mr-2  mt-0.5" />
+                                <span className="">123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh</span>
                             </li>
                             <li className="flex items-center">
-                                <Phone className="w-5 h-5 mr-2 text-gray-400" />
-                                <span className="text-gray-400">+84827319452</span>
+                                <Phone className="w-5 h-5 mr-2 " />
+                                <span className="">+84827319452</span>
                             </li>
                             <li className="flex items-center">
-                                <Mail className="w-5 h-5 mr-2 text-gray-400" />
-                                <span className="text-gray-400">nhanhoa.cao@gmail.com</span>
+                                <Mail className="w-5 h-5 mr-2 " />
+                                <span className="">nhanhoa.cao@gmail.com</span>
                             </li>
                         </ul>
                     </div>
                 </div>
 
-                <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                <div className="border-t border-gray-800 mt-12 pt-8 text-center text-white">
                     <p>&copy; {new Date().getFullYear()} NH Food. Tất cả quyền được bảo lưu.</p>
                 </div>
             </div>

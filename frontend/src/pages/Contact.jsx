@@ -2,7 +2,7 @@ import React from 'react';
 
 function Contact() {
     return (
-        <div className="container mx-auto py-10 px-6 max-w-l bg-gray-50 rounded-lg shadow-xl">
+        <div className="container mx-auto py-10 px-6 max-w-l bg-green-50 rounded-lg shadow-xl">
             <h1 className="text-3xl font-bold text-teal-700 text-center mb-8">
                 Liên Hệ Với Chúng Tôi
             </h1>

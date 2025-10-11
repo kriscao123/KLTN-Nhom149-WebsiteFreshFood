@@ -141,7 +141,7 @@ const HomePage = () => {
     </section>
 
       {/* Products Section */}
-       <section id="products" className="py-10 bg-gray-100">
+       <section id="products" className="py-10 bg-green-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-6 text-center">Sản phẩm nổi bật</h2>
           {productList.length === 0 ? (

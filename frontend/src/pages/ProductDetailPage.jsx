@@ -129,7 +129,7 @@ const ProductDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-gray-100">
+    <div className="container mx-auto px-4 py-8 bg-green-50 from-blue-50 to-gray-100">
       {notification && (
   <div
     className={`fixed top-20 right-4 z-1000 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${

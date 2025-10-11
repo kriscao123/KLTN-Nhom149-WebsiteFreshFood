@@ -784,7 +784,7 @@ const CheckoutPage = () => {
     const { subtotal, shipping, total } = calculateSummary()
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-green-50 py-8 px-4 sm:px-6 lg:px-8">
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${

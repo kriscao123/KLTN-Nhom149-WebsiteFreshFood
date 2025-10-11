@@ -144,7 +144,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
     }
 
     return (
-        <section id="products" className="py-5 bg-gray-100">
+        <section id="products" className="py-5 bg-green-50">
             <div className="container mx-auto">
                 <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
                     <h2 className="text-2xl font-semibold mb-3 md:mb-0">Sản phẩm nổi bật</h2>

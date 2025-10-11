@@ -148,22 +148,14 @@ const Header = () => {
     }
 
     return (
-        <header className="bg-white shadow-md sticky top-0 z-50">
-            {/* Top bar */}
-            <div className="bg-gray-900 py-2 px-4 flex justify-between items-center">
-                <div className="font-medium text-white"><a href="/">NH Food</a></div>
-                <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-1 text-white">
-                        <span>0326-829-327</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-white">
-                        <span>08:00 - 18:00</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main header */}
-            <div className="bg-white text-gray-900 py-4 px-4 flex justify-between items-center shadow-sm relative">
+        <header className="sticky top-0 left-0 w-full bg-green-600 text-white z-50 shadow-md">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        {/* Logo */}
+        <div>
+          <Link to="/" className="text-3xl font-bold text-white">
+            NH Food
+          </Link>
+        </div>
                 {/* Search */}
                 <div className="flex-1 max-w-xl relative">
                     <form onSubmit={handleSearchSubmit} className="relative">
@@ -172,15 +164,15 @@ const Header = () => {
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                             placeholder="Tìm kiếm sản phẩm..."
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                            className="w-full px-4 py-2 border  border-gray-300 rounded-md focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
                         />
                         <button
                             type="submit"
-                            className="absolute right-0 top-0 h-full bg-gray-900 hover:bg-gray-800 text-white px-4 rounded-r-md"
+                            className="absolute right-0 top-0 h-full bg-gray-100 hover:bg-gray-300 text-white px-4 rounded-r-md"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4"
+                                className="h-4 w-4 text-black"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -218,20 +210,20 @@ const Header = () => {
 
                 {/* Navigation */}
                 <div className="hidden md:flex items-center space-x-6 ml-6">
-                    <Link to="/" className="py-2 font-medium hover:text-blue-600">
+                    <Link to="/" className="py-2 font-medium hover:text-gray-300">
                         Trang chủ
                     </Link>
-                    <Link to="/products" className="py-2 font-medium hover:text-blue-600">
+                    <Link to="/products" className="py-2 font-medium hover:text-gray-300">
                         Sản phẩm
                     </Link>
-                    <Link to="/contact" className="py-2 font-medium hover:text-blue-600">
+                    <Link to="/contact" className="py-2 font-medium hover:text-gray-300">
                         Liên hệ
                     </Link>
-                    <Link to="/about" className="py-2 font-medium hover:text-blue-600">
+                    <Link to="/about" className="py-2 font-medium hover:text-gray-300">
                         Giới thiệu
                     </Link>
                     {!isLoggedIn && (
-                        <Link to="/login" className="py-2 font-medium hover:text-blue-600">
+                        <Link to="/login" className="py-2 font-medium hover:text-gray-300">
                             Đăng nhập
                         </Link>
                     )}
@@ -239,7 +231,7 @@ const Header = () => {
                         <div className="relative">
                             <button
                                 onClick={toggleUserMenu}
-                                className="py-2 font-medium hover:text-blue-600 focus:outline-none user-menu-button"
+                                className="py-2 font-medium hover:text-gray-300 focus:outline-none user-menu-button"
                             >
                                 {user.username}
                             </button>
@@ -267,7 +259,7 @@ const Header = () => {
                 <div className="ml-4">
                     <Link
                         to="/cart"
-                        className="flex items-center px-4 py-2 border border-gray-300 text-gray-900 rounded-md hover:bg-gray-100 relative"
+                        className="flex items-center bg-white px-4 py-2 border border-gray-300 text-gray-900 rounded-md hover:bg-gray-100 relative"
                     >
                         🛒
                         {cartCount > 0 && (
@@ -275,7 +267,7 @@ const Header = () => {
                                 {cartCount}
                             </span>
                         )}
-                        <span className="ml-2">GIỎ HÀNG</span>
+                        <span className="ml-2">Giỏ hàng</span>
                     </Link>
                 </div>
 
