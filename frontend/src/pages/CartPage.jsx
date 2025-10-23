@@ -31,9 +31,9 @@ const CartPage = () => {
 
             try {
                 setIsLoading(true)
-                const cartResponse = await api.get(`/carts/user/${userId}`)
-                if (cartResponse.data && cartResponse.data.cartItems) {
-                    setCartItems(cartResponse.data.cartItems)
+                const cartResponse = await api.get(`/cart/user/${userId}`)
+                if (cartResponse.data && cartResponse.data.cart.items) {
+                    setCartItems(cartResponse.data.cart.items)
                 } else {
                     setCartItems([])
                 }
@@ -305,110 +305,77 @@ const CartPage = () => {
 
             <div className="max-w-6xl mx-auto">
                 <h1 className="text-3xl font-bold text-gray-900 mb-8">Giỏ hàng của bạn</h1>
-
                 <div className="flex flex-col lg:flex-row gap-8">
                     <div className="lg:w-2/3">
                         <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-                                <h2 className="text-xl font-semibold text-gray-800">Sản phẩm ({cartItems.length})</h2>
-                                <div className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedItems.size === cartItems.length}
-                                        onChange={toggleSelectAll}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                    />
-                                    <span className="ml-2 text-sm text-gray-700">Chọn tất cả</span>
-                                </div>
-                            </div>
+                            {cartItems.map((item) => {
+                                const productInfo = item.productId;
+                                return (
+                                    <div key={item.cartItemId} className="p-6 flex flex-col sm:flex-row items-center">
+                                        <div className="w-6 flex-shrink-0">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedItems.has(item.cartItemId)}
+                                                onChange={() => toggleItemSelection(item.cartItemId)}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                            />
+                                        </div>
+                                        <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden ml-4">
+                                            <img
+                                                src={productInfo.imageUrl || "/placeholder.jpg"}
+                                                alt={item.productName}
+                                                className="w-full h-full object-cover object-center"
+                                            />
+                                        </div>
 
-                            <div className="divide-y divide-gray-200">
-                                {cartItems.map((item) => {
-                                    const productInfo = getProductInfo(item.productId)
-                                    return (
-                                        <div key={item.cartItemId} className="p-6 flex flex-col sm:flex-row items-center">
-                                            <div className="w-6 flex-shrink-0">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedItems.has(item.cartItemId)}
-                                                    onChange={() => toggleItemSelection(item.cartItemId)}
-                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                                />
-                                            </div>
-                                            <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden ml-4">
-                                                <img
-                                                    src={productInfo.imageUrl || "/placeholder.svg?height=96&width=96"}
-                                                    alt={item.productName}
-                                                    className="w-full h-full object-cover object-center"
-                                                />
-                                            </div>
-
-                                            <div className="flex-1 sm:ml-6 mt-4 sm:mt-0">
-                                                <div className="flex flex-col sm:flex-row sm:justify-between">
-                                                    <div>
-                                                        <h3 className="text-lg font-medium text-gray-800">{item.productName}</h3>
-                                                        <p className="mt-1 text-sm text-gray-500">{productInfo.categoryId}</p>
-                                                    </div>
-                                                    <p className="text-lg font-medium text-gray-900 mt-2 sm:mt-0">
-                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productInfo.salePrice)}
-                                                    </p>
+                                        <div className="flex-1 sm:ml-6 mt-4 sm:mt-0">
+                                            <div className="flex flex-col sm:flex-row sm:justify-between">
+                                                <div>
+                                                    <h3 className="text-lg font-medium text-gray-800">{productInfo.productName}</h3>
+                                                    {/* <p className="mt-1 text-sm text-gray-500">{productInfo.categoryId}</p> */}
                                                 </div>
+                                                <p className="text-lg font-medium text-gray-900 mt-2 sm:mt-0">
+                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productInfo.unitPrice)}
+                                                </p>
+                                            </div>
 
-                                                <div className="flex items-center justify-between mt-4">
-                                                    <div className="flex items-center border border-gray-300 rounded-md">
-                                                        <button
-                                                            onClick={() => {
-                                                                const newQuantity = item.quantity - 1
-                                                                if (newQuantity >= 1) updateQuantity(item.cartItemId, newQuantity)
-                                                            }}
-                                                            className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-                                                            aria-label="Giảm số lượng"
-                                                        >
-                                                            <Minus size={16} />
-                                                        </button>
-                                                        <input
-                                                            type="text"
-                                                            value={item.quantity}
-                                                            onChange={(e) => {
-                                                                const val = parseInt(e.target.value)
-                                                                if (!isNaN(val) && val >= 1) updateQuantity(item.cartItemId, val)
-                                                            }}
-                                                            className="w-16 text-center border-x border-gray-300 py-1 outline-none"
-                                                        />
-                                                        <button
-                                                            onClick={() => {
-                                                                const newQuantity = item.quantity + 1
-                                                                updateQuantity(item.cartItemId, newQuantity)
-                                                            }}
-                                                            className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-                                                            aria-label="Tăng số lượng"
-                                                        >
-                                                            <Plus size={16} />
-                                                        </button>
-                                                    </div>
-
+                                            <div className="flex items-center justify-between mt-4">
+                                                <div className="flex items-center border border-gray-300 rounded-md">
                                                     <button
-                                                        onClick={() => confirmDelete(item)}
-                                                        disabled={isUpdating}
-                                                        className="text-red-600 hover:text-red-800 flex items-center disabled:opacity-50"
-                                                        aria-label="Xóa sản phẩm"
+                                                        onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                                                        className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                                                        aria-label="Giảm số lượng"
                                                     >
-                                                        <Trash2 size={18} className="mr-1" />
-                                                        <span>Xóa</span>
+                                                        <Minus size={16} />
+                                                    </button>
+                                                    <input
+                                                        type="text"
+                                                        value={item.quantity}
+                                                        onChange={(e) => updateQuantity(item.cartItemId, parseInt(e.target.value))}
+                                                        className="w-16 text-center border-x border-gray-300 py-1 outline-none"
+                                                    />
+                                                    <button
+                                                        onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                                                        className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                                                        aria-label="Tăng số lượng"
+                                                    >
+                                                        <Plus size={16} />
                                                     </button>
                                                 </div>
+
+                                                <button
+                                                    onClick={() => removeItem(item)}
+                                                    className="text-red-600 hover:text-red-800 flex items-center"
+                                                    aria-label="Xóa sản phẩm"
+                                                >
+                                                    <Trash2 size={18} className="mr-1" />
+                                                    <span>Xóa</span>
+                                                </button>
                                             </div>
                                         </div>
-                                    )
-                                })}
-                            </div>
-
-                            <div className="p-6 border-t border-gray-200">
-                                <Link to="/products" className="text-blue-600 hover:text-blue-800 flex items-center">
-                                    <ArrowLeft size={18} className="mr-2" />
-                                    Tiếp tục mua sắm
-                                </Link>
-                            </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -448,20 +415,10 @@ const CartPage = () => {
                             >
                                 Tiến hành thanh toán
                             </button>
-
-                            <div className="mt-6 text-sm text-gray-500">
-                                <p className="mb-2">Chúng tôi chấp nhận:</p>
-                                <div className="flex space-x-2">
-                                    <div className="w-12 h-8 bg-gray-200 rounded flex items-center justify-center text-xs">VISA</div>
-                                    <div className="w-12 h-8 bg-gray-200 rounded flex items-center justify-center text-xs">MC</div>
-                                    <div className="w-12 h-8 bg-gray-200 rounded flex items-center justify-center text-xs">MOMO</div>
-                                    <div className="w-12 h-8 bg-gray-200 rounded flex items-center justify-center text-xs">COD</div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+        </div>
         </div>
     )
 }

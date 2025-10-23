@@ -70,16 +70,21 @@ const ProductDetailPage = () => {
     }
 
     try {
-      setIsAddingToCart(true);
-      const payload = { userId, productId: id, quantity };
-      const response = await api.post("/carts/items", payload);
-      showNotification("success", `Đã thêm ${quantity} "${product.productName}" vào giỏ hàng!`);
-    } catch (error) {
-      console.error("Lỗi khi thêm vào giỏ hàng:", error);
-      showNotification("error", "Không thể thêm vào giỏ hàng. Vui lòng thử lại.");
-    } finally {
-      setIsAddingToCart(false);
-    }
+    const response = await api.put("/cart/add", {
+      userId: userId, // Giả sử cartId là userId (nếu giỏ hàng gắn với người dùng)
+      productId: product._id,
+      quantity: quantity,
+      price: product.unitPrice, // Giả sử bạn có giá trong `product`
+    });
+
+    // Cập nhật giỏ hàng sau khi thêm sản phẩm
+    showNotification("success", "Sản phẩm đã được thêm vào giỏ hàng.");
+    // setCartCount(response.data.cart.items.length); // Cập nhật số lượng giỏ hàng
+  } catch (error) {
+    console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
+    showNotification("error", "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.");
+  }
+
   };
 
   // Define handleBuyNow function

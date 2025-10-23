@@ -23,7 +23,7 @@ const Header = () => {
         if (loggedInUser) {
             setUser(loggedInUser)
             setIsLoggedIn(true)
-            // fetchCartCount(loggedInUser.email)
+            fetchCartCount(loggedInUser.userId)
         } else {
             setUser(null)
             setIsLoggedIn(false)
@@ -69,19 +69,24 @@ const Header = () => {
         }
     }, [isUserMenuOpen])
 
-    // const fetchCartCount = async (email) => {
-    //     try {
-    //         const response = await api.get(`/carts/user/${email}`)
-    //         if (response.data && response.data.cartItems) {
-    //             const totalItems = response.data.cartItems.length
-    //             setCartCount(totalItems)
-    //         } else {
-    //             setCartCount(0)
-    //         }
-    //     } catch {
-    //         setCartCount(0)
-    //     }
-    // }
+    const fetchCartCount = async (userId) => {
+    try {
+        // Gọi API để lấy giỏ hàng của người dùng
+        const response = await api.get(`/cart/user/${userId}`);
+        
+        // Kiểm tra dữ liệu giỏ hàng trả về
+        if (response.data && response.data.cart) {
+            const cartItems = response.data.cart.items || [];
+            const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0); // Tính tổng số lượng sản phẩm trong giỏ hàng
+            setCartCount(totalItems); // Cập nhật số lượng sản phẩm
+        } else {
+            setCartCount(0); // Nếu không có giỏ hàng
+        }
+    } catch (error) {
+        console.error("Lỗi khi lấy giỏ hàng:", error);
+        setCartCount(0); // Nếu có lỗi khi gọi API
+    }
+};
 
     const fetchSuggestions = useCallback(
         debounce(async (query) => {
@@ -259,7 +264,7 @@ const Header = () => {
                 <div className="ml-4">
                     <Link
                         to="/cart"
-                        className="flex items-center bg-white px-4 py-2 border border-gray-300 text-gray-900 rounded-md hover:bg-gray-100 relative"
+                        className="flex items-center bg-gray-200 px-4 py-2 border border-gray-300 text-gray-900 rounded-md hover:bg-gray-100 relative"
                     >
                         🛒
                         {cartCount > 0 && (

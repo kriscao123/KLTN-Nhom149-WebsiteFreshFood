@@ -4,12 +4,12 @@ import { Link } from 'react-router-dom';
 
 const AboutPage = () => {
   return (
-    <div className="bg-green-50"> {/* Màu nền nhạt, tạo sự nhẹ nhàng và dễ chịu */}
+    <div className="bg-green-50"> {}
       {/* Hero Section */}
       <section
         className="bg-green-600 text-white py-20"
         style={{
-          backgroundImage: "url('/path/to/hero-image.jpg')", // Thay ảnh nền phù hợp
+          backgroundImage: "url('/path/to/hero-image.jpg')", 
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -54,7 +54,7 @@ const AboutPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="flex flex-col items-center">
             <img
-              src="/path/to/our-farm.jpg" // Thay ảnh phù hợp
+              src="/img/bia2.jpeg" 
               alt="Nông trại sạch"
               className="w-full h-80 object-cover rounded-lg mb-6"
             />
@@ -67,7 +67,7 @@ const AboutPage = () => {
 
           <div className="flex flex-col items-center">
             <img
-              src="/path/to/quality-products.jpg" // Thay ảnh phù hợp
+              src="/img/bia3.jpg"
               alt="Sản phẩm chất lượng"
               className="w-full h-80 object-cover rounded-lg mb-6"
             />
