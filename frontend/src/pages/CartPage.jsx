@@ -116,14 +116,13 @@ const CartPage = () => {
     }
 
     const calculateSelectedSummary = () => {
-        const selectedCartItems = cartItems.filter((item) => selectedItems.has(item.cartItemId))
-        const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0)
-        const subtotal = selectedCartItems.reduce((total, item) => {
-            const productInfo = getProductInfo(item.productId)
-            return total + (productInfo.salePrice || 0) * item.quantity
-        }, 0)
-        return { totalItems, subtotal }
-    }
+        const selectedCartItems = cartItems.filter((item) => selectedItems.has(item.productId));
+        const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0);
+        const subtotal = cartItems.reduce((total, item) => {
+            return total + (item.price * item.quantity);  // Dùng item.price thay vì productInfo.salePrice
+        }, 0);
+        return { totalItems, subtotal };
+    };
 
     const toggleItemSelection = (itemId) => {
         setSelectedItems((prev) => {
@@ -386,7 +385,7 @@ const CartPage = () => {
                             <div className="space-y-4">
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">
-                                        Tạm tính ({totalItems} sản phẩm)
+                                        Tạm tính ({cartItems.length} sản phẩm)
                                     </span>
                                     <span className="text-gray-800 font-medium">
                                         {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(subtotal)}

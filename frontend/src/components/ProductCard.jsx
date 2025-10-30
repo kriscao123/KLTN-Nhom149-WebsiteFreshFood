@@ -1,38 +1,45 @@
-import React from 'react';
-import { formatPrice, generateRatingStars } from '../assets/js/utils.jsx';
+"use client"
+import { Link } from "react-router-dom"
 
-const ProductCard = ({ product }) => {
-    return (
-        <div
-            className="product-card bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform transform hover:scale-105"
-        >
-            <div className="bg-gray-100 h-48 flex items-center justify-center">
-                <img
-                    src={product.imageUrl}
-                    alt={product.productName}
-                    className="object-contain h-full"
-                />
-            </div>
-            <div className="p-4">
-                <h3 className="text-lg font-medium">{product.productName}</h3>
+const formatCurrency = (v) => (v ?? 0).toLocaleString("vi-VN")
 
-                {/* Nếu bạn không có rating hoặc reviewCount thì có thể ẩn phần này hoặc để mặc định */}
-                <div className="flex items-center mb-2">
-                    {/*<div*/}
-                    {/*    className="text-yellow-500 mr-2"*/}
-                    {/*    dangerouslySetInnerHTML={{ __html: generateRatingStars(4.5) }} // mặc định 4.5 sao*/}
-                    {/*></div>*/}
-                    <span className="text-gray-500 text-sm">Số lượng tồn: {product.unitsInStock}</span>
-                </div>
+export default function ProductCard({ product }) {
+  const { _id, productName, imageUrl, unitPrice } = product
 
-                <div className="flex items-center justify-between">
-                    <span className="font-bold text-blue-600">
-                        {formatPrice(product.unitPrice)}
-                    </span>
-                </div>
-            </div>
+  return (
+    <Link
+      to={`/product/${_id}`}
+      className="group block bg-white rounded-xl shadow-sm ring-1 ring-gray-100 hover:shadow-md transition-all overflow-hidden"
+    >
+      {/* Ảnh: chiều cao cố định để không phóng quá to */}
+      <div className="w-full h-40 sm:h-44 md:h-48 bg-gray-50 grid place-items-center overflow-hidden">
+        <img
+          src={imageUrl || "/img/placeholder.png"}
+          alt={productName}
+          className="max-h-full max-w-full object-contain group-hover:scale-[1.03] transition-transform duration-300"
+          loading="lazy"
+        />
+      </div>
+
+      {/* Info */}
+      <div className="p-3">
+        <h3 className="text-[13px] sm:text-sm font-medium line-clamp-2 min-h-[36px]">
+          {productName}
+        </h3>
+
+        <div className="mt-2 flex items-baseline gap-1">
+          <span className="text-base sm:text-lg font-semibold text-green-700">
+            {formatCurrency(unitPrice)}₫
+          </span>
         </div>
-    );
-};
 
-export default ProductCard;
+        <button
+          className="mt-3 w-full rounded-lg bg-green-600 text-white py-2 text-xs sm:text-sm font-medium hover:bg-green-700"
+          type="button"
+        >
+          Thêm vào giỏ
+        </button>
+      </div>
+    </Link>
+  )
+}

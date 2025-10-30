@@ -58,6 +58,23 @@ router.post('/request-otp', async (req, res) => {
   res.json({ message: 'Đã gửi OTP', channel });
 });
 
+router.get('/get-role/:roleId', async (req, res) => {
+  try {
+    const roleId = req.params.roleId;
+    const role = await Role.findById(roleId); // Tìm vai trò từ roleId
+
+    if (!role) {
+      return res.status(404).json({ message: 'Role not found' });
+    }
+
+    // Trả về roleName và description
+    res.json({ roleName: role.roleName, description: role.description });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 /** POST /api/auth/verify-otp
  * body: { identifier, code }
  * -> trả otpToken nếu đúng
@@ -120,7 +137,7 @@ router.post('/login', async (req, res) => {
   const ok = await bcrypt.compare(password, u.passwordHash || '');
   if (!ok) return res.status(401).json({ message: 'Sai thông tin đăng nhập' });
   const token = jwt.sign({ id: u._id, email: u.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
-  res.json({ token, profile: { id: u._id, email: u.email, name: u.name, phone: u.phone, address: u.address } });
+  res.json({ token, profile: { id: u._id, email: u.email, name: u.name, phone: u.phone, address: u.address, roleId: u.roleId } });
 });
 
 module.exports = router;

@@ -51,13 +51,17 @@ const LoginPage = () => {
   const { token, profile } = response.data || {};
   if (token) localStorage.setItem("token", token);
 
+   const roleResponse = await api.get(`/auth/get-role/${profile?.roleId}`);
+    const roleName = roleResponse.data.roleName || "CUSTOMER"; // Gán mặc định nếu không lấy được roleName
+
+
   const user = {
     userId: profile?.id,
     username: profile?.name || (profile?.email ? profile.email.split("@")[0] : "user"),
     email: profile?.email || null,
     phone: profile?.phone || null,
     address: profile?.address || null,
-    role: "CUSTOMER", // backend chưa có role → gán mặc định để App.jsx hoạt động
+    role: roleName, // backend chưa có role → gán mặc định để App.jsx hoạt động
   };
 
   saveUserToLocalStorage(user)
@@ -79,7 +83,7 @@ const LoginPage = () => {
         const storedRole = localStorage.getItem("userRole");
 
         if (isLoggedIn && storedRole) {
-            if (storedRole === "ADMIN") {
+            if (storedRole === "Admin") {
                 navigate("/admin");
             } else {
                 navigate("/login");

@@ -109,9 +109,9 @@ export default function App() {
                         <Route path="/about" element={<AboutPage />} />
                         <Route path="/product/:id" element={<ProductDetailPage />} />
                         <Route path="/contact" element={<Contact />} />
-                        <Route path="/cart" element={<ProtectedRoute element={<CartPage />} allowedRoles={["CUSTOMER"]} />} />
-                        <Route path="/checkout" element={<ProtectedRoute element={<CheckoutPage />} allowedRoles={["CUSTOMER"]} />} />
-                        <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} allowedRoles={["CUSTOMER"]} />} />
+                        <Route path="/cart" element={<ProtectedRoute element={<CartPage />} allowedRoles={["Customer"]} />} />
+                        <Route path="/checkout" element={<ProtectedRoute element={<CheckoutPage />} allowedRoles={["Customer"]} />} />
+                        <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} allowedRoles={["Customer"]} />} />
                     </Route>
 
                     {/* Route cho admin với AdminLayout */}
