@@ -194,6 +194,7 @@ const ProductDetailPage = () => {
               <span className="text-3xl font-bold text-indigo-600">{product.unitPrice.toLocaleString("vi-VN")}₫</span>
             </div>
             <p className="text-sm text-green-600 font-semibold">✓ Còn hàng: {product.unitsInStock} sản phẩm</p>
+            <p className="text-sm text-black font-semibold">Lượt mua: {product.salesCount} sản phẩm</p>
           </div>
 
           <div className="h-px w-full bg-gray-200"></div>

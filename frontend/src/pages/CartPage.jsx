@@ -55,24 +55,35 @@ const CartPage = () => {
         fetchData()
     }, [userId])
 
-    const updateQuantity = async (cartItemId, newQuantity) => {
-        if (newQuantity < 1) return
+    const updateQuantity = async (productId, newQuantity, price) => {
+        if (!Number.isFinite(newQuantity) || newQuantity < 1) return;
 
         try {
-            setIsUpdating(true)
-            const response = await api.put(`/carts/items/${cartItemId}`, { quantity: newQuantity })
-            if (response.data && response.data.cartItems) {
-                setCartItems(response.data.cartItems)
-                window.dispatchEvent(new Event("cartUpdated"))
+            setIsUpdating(true);
+            const pid = productId?._id || productId; // hỗ trợ cả object lẫn id
+            const res = await api.put(`/cart/update`, { userId, productId: pid, quantity: newQuantity, price });
+
+            const serverCart = res?.data?.cart;
+            if (serverCart && Array.isArray(serverCart.items)) {
+                setCartItems(serverCart.items); // đã populate => không mất ảnh/tên
+            } else {
+                // fallback optimistic
+                setCartItems(prev =>
+                    prev.map(i => ((getId(i.productId) === pid) ? { ...i, quantity: newQuantity } : i))
+                );
             }
-            showNotification("success", "Cập nhật số lượng thành công!")
+
+            window.dispatchEvent(new Event("cartUpdated"));
+            showNotification("success", "Cập nhật số lượng thành công!");
         } catch (err) {
-            console.error("Error updating cart:", err)
-            showNotification("error", "Không thể cập nhật số lượng. Vui lòng thử lại.")
+            console.error("Error updating cart:", err);
+            showNotification("error", "Không thể cập nhật số lượng. Vui lòng thử lại.");
         } finally {
-            setIsUpdating(false)
+            setIsUpdating(false);
         }
-    }
+    };
+
+
 
     const confirmDelete = (item) => {
         setItemToDelete(item)
@@ -89,17 +100,42 @@ const CartPage = () => {
 
         try {
             setIsUpdating(true)
-            await api.delete(`/carts/items`, {
-                data: { userId, productId: itemToDelete.productId }
-            })
-            setCartItems((prevItems) => prevItems.filter((item) => item.cartItemId !== itemToDelete.cartItemId))
+            const pid = getId(itemToDelete.productId);
+
+            // Gọi API backend đúng endpoint: DELETE /cart/remove
+            // Truyền userId và productId trong body (theo API của bạn)
+            const res = await api.delete(`/cart/remove`, {
+                data: { userId, productId: pid },
+            });
+
+            // Dữ liệu giỏ hàng mới trả về (đã populate đầy đủ)
+            const serverCart = res?.data?.cart;
+
+            if (serverCart && Array.isArray(serverCart.items)) {
+            // Cập nhật lại giỏ hàng với dữ liệu mới
+                setCartItems(serverCart.items);
+            } else {
+            // Nếu backend không trả về cart.items thì tự xóa local
+                setCartItems((prevItems) =>
+                    prevItems.filter((item) => getId(item.productId) !== pid)
+                );
+            }
+
+            // Bỏ chọn sản phẩm vừa bị xóa (nếu nó đang được tick)
             setSelectedItems((prev) => {
-                const newSet = new Set(prev)
-                newSet.delete(itemToDelete.cartItemId)
-                return newSet
-            })
-            window.dispatchEvent(new Event("cartUpdated"))
-            showNotification("success", `Đã xóa ${itemToDelete.productName} khỏi giỏ hàng`)
+                const newSet = new Set(prev);
+                newSet.delete(getCartRowId(itemToDelete));
+                return newSet;
+            });
+
+            // Cập nhật event global cho header giỏ hàng (nếu có)
+            window.dispatchEvent(new Event("cartUpdated"));
+
+            // Thông báo thành công
+            showNotification(
+                "success",
+                `Đã xóa "${itemToDelete.productName || "sản phẩm"}" khỏi giỏ hàng`
+            );
         } catch (err) {
             console.error("Error removing item:", err)
             showNotification("error", "Không thể xóa sản phẩm. Vui lòng thử lại sau.")
@@ -116,10 +152,12 @@ const CartPage = () => {
     }
 
     const calculateSelectedSummary = () => {
-        const selectedCartItems = cartItems.filter((item) => selectedItems.has(item.productId));
+        const selectedCartItems = cartItems.filter(item =>
+            selectedItems.has(getCartRowId(item))
+        );
         const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0);
-        const subtotal = cartItems.reduce((total, item) => {
-            return total + (item.price * item.quantity);  // Dùng item.price thay vì productInfo.salePrice
+        const subtotal = selectedCartItems.reduce((total, item) => {
+            return total + (item.price * item.quantity); 
         }, 0);
         return { totalItems, subtotal };
     };
@@ -135,7 +173,7 @@ const CartPage = () => {
 
     const toggleSelectAll = () => {
         if (selectedItems.size === cartItems.length) setSelectedItems(new Set())
-        else setSelectedItems(new Set(cartItems.map((item) => item.cartItemId)))
+        else setSelectedItems(new Set(cartItems.map((item) => getCartRowId(item))))
     }
 
     const handleCheckout = () => {
@@ -147,10 +185,17 @@ const CartPage = () => {
         navigate(`/checkout?items=${itemIds.join(",")}`)
     }
 
-    const getProductInfo = (productId) => {
-        const product = products.find((p) => p.productId === productId)
-        return product || { imageUrl: null, categoryId: "N/A", salePrice: 0 }
-    }
+    const getId = (pid) => (pid && typeof pid === "object" ? (pid._id || pid.productId) : pid);
+
+    const getCartRowId = (item) => item.cartItemId || getId(item.productId) || item._id;
+    const getProductInfo = (pid) => {
+        const id = getId(pid);
+        const found =
+            products.find(p => (p._id || p.productId) === id) ||
+            (pid && typeof pid === 'object' ? pid : null);
+
+        return found || {}; // trả object trống nếu không có
+    };
 
     if (!userId) {
         return (
@@ -307,76 +352,108 @@ const CartPage = () => {
                 <div className="flex flex-col lg:flex-row gap-8">
                     <div className="lg:w-2/3">
                         <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                            {/* Ô chọn tất cả */}
+                            <div className="flex items-center p-4 border-b border-gray-200 bg-gray-50">
+                            <input
+                                type="checkbox"
+                                checked={selectedItems.size === cartItems.length && cartItems.length > 0}
+                                onChange={toggleSelectAll}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <span className="ml-3 text-gray-700 font-medium select-none">Chọn tất cả</span>
+                            </div>
+
+                            {/* Danh sách sản phẩm */}
                             {cartItems.map((item) => {
-                                const productInfo = item.productId;
-                                return (
-                                    <div key={item.cartItemId} className="p-6 flex flex-col sm:flex-row items-center">
-                                        <div className="w-6 flex-shrink-0">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedItems.has(item.cartItemId)}
-                                                onChange={() => toggleItemSelection(item.cartItemId)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                            />
-                                        </div>
-                                        <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden ml-4">
-                                            <img
-                                                src={productInfo.imageUrl || "/placeholder.jpg"}
-                                                alt={item.productName}
-                                                className="w-full h-full object-cover object-center"
-                                            />
-                                        </div>
+                            const productInfo = getProductInfo(item.productId);
+                            const unitPrice = Number(productInfo.unitPrice ?? item.price ?? 0);
+                            return (
+                                <div
+                                key={item.cartItemId}
+                                className="p-6 flex flex-col sm:flex-row items-center border-b border-gray-100 last:border-0"
+                                >
+                                <div className="w-6 flex-shrink-0">
+                                    <input
+                                    type="checkbox"
+                                    checked={selectedItems.has(getCartRowId(item))}
+                                    onChange={() => toggleItemSelection(getCartRowId(item))}
+                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                </div>
 
-                                        <div className="flex-1 sm:ml-6 mt-4 sm:mt-0">
-                                            <div className="flex flex-col sm:flex-row sm:justify-between">
-                                                <div>
-                                                    <h3 className="text-lg font-medium text-gray-800">{productInfo.productName}</h3>
-                                                    {/* <p className="mt-1 text-sm text-gray-500">{productInfo.categoryId}</p> */}
-                                                </div>
-                                                <p className="text-lg font-medium text-gray-900 mt-2 sm:mt-0">
-                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productInfo.unitPrice)}
-                                                </p>
-                                            </div>
+                                <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden ml-4">
+                                    <img
+                                    src={productInfo.imageUrl || "/placeholder.jpg"}
+                                    alt={productInfo.productName || "Sản phẩm"}
+                                    className="w-full h-full object-cover object-center"
+                                    />
+                                </div>
 
-                                            <div className="flex items-center justify-between mt-4">
-                                                <div className="flex items-center border border-gray-300 rounded-md">
-                                                    <button
-                                                        onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                                                        className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-                                                        aria-label="Giảm số lượng"
-                                                    >
-                                                        <Minus size={16} />
-                                                    </button>
-                                                    <input
-                                                        type="text"
-                                                        value={item.quantity}
-                                                        onChange={(e) => updateQuantity(item.cartItemId, parseInt(e.target.value))}
-                                                        className="w-16 text-center border-x border-gray-300 py-1 outline-none"
-                                                    />
-                                                    <button
-                                                        onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
-                                                        className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-                                                        aria-label="Tăng số lượng"
-                                                    >
-                                                        <Plus size={16} />
-                                                    </button>
-                                                </div>
-
-                                                <button
-                                                    onClick={() => removeItem(item)}
-                                                    className="text-red-600 hover:text-red-800 flex items-center"
-                                                    aria-label="Xóa sản phẩm"
-                                                >
-                                                    <Trash2 size={18} className="mr-1" />
-                                                    <span>Xóa</span>
-                                                </button>
-                                            </div>
-                                        </div>
+                                <div className="flex-1 sm:ml-6 mt-4 sm:mt-0">
+                                    <div className="flex flex-col sm:flex-row sm:justify-between">
+                                    <div>
+                                        <h3 className="text-lg font-medium text-gray-800">
+                                        {productInfo.productName}
+                                        </h3>
                                     </div>
-                                );
+                                    <p className="text-lg font-medium text-gray-900 mt-2 sm:mt-0">
+                                        {new Intl.NumberFormat("vi-VN", {
+                                        style: "currency",
+                                        currency: "VND",
+                                        }).format(unitPrice)}
+                                    </p>
+                                    </div>
+
+                                    <div className="flex items-center justify-between mt-4">
+                                    <div className="flex items-center border border-gray-300 rounded-md">
+                                        <button
+                                        onClick={() =>
+                                            updateQuantity(item.productId, item.quantity - 1, item.price)
+                                        }
+                                        className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                                        aria-label="Giảm số lượng"
+                                        >
+                                        <Minus size={16} />
+                                        </button>
+                                        <input
+                                        type="number"
+                                        min={1}
+                                        step={1}
+                                        value={item.quantity}
+                                        onChange={(e) => {
+                                            const v = parseInt(e.target.value, 10);
+                                            const safe = Number.isFinite(v) && v > 0 ? v : 1;
+                                            updateQuantity(item.productId, safe, item.price);
+                                        }}
+                                        className="w-16 text-center border-x border-gray-300 py-1 outline-none"
+                                        />
+                                        <button
+                                        onClick={() =>
+                                            updateQuantity(item.productId, item.quantity + 1, item.price)
+                                        }
+                                        className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                                        aria-label="Tăng số lượng"
+                                        >
+                                        <Plus size={16} />
+                                        </button>
+                                    </div>
+
+                                    <button
+                                        onClick={() => confirmDelete(item)}
+                                        className="text-red-600 hover:text-red-800 flex items-center"
+                                        aria-label="Xóa sản phẩm"
+                                    >
+                                        <Trash2 size={18} className="mr-1" />
+                                        <span>Xóa</span>
+                                    </button>
+                                    </div>
+                                </div>
+                                </div>
+                            );
                             })}
                         </div>
                     </div>
+
 
                     <div className="lg:w-1/3">
                         <div className="bg-white shadow-md rounded-lg p-6 sticky top-24">
@@ -385,7 +462,7 @@ const CartPage = () => {
                             <div className="space-y-4">
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">
-                                        Tạm tính ({cartItems.length} sản phẩm)
+                                        Tạm tính ({totalItems} sản phẩm)
                                     </span>
                                     <span className="text-gray-800 font-medium">
                                         {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(subtotal)}

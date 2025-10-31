@@ -69,7 +69,8 @@ router.put('/add', async (req, res) => {
     cart.totalPrice += price * quantity;
     await cart.save(); // Lưu lại giỏ hàng đã cập nhật
 
-    res.status(200).json({ message: 'Sản phẩm đã được thêm vào giỏ hàng', cart });
+    const populated = await Cart.findById(cart._id).populate('items.productId');
+    res.status(200).json({ message: 'Sản phẩm đã được cập nhật', cart:populated });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi thêm sản phẩm vào giỏ hàng', error });
   }
@@ -78,16 +79,17 @@ router.put('/add', async (req, res) => {
 
 // Cập nhật sản phẩm trong giỏ hàng
 router.put('/update', async (req, res) => {
-  const { cartId, productId, quantity, price } = req.body;
+  const { userId, productId, quantity, price } = req.body;
 
   try {
-    const cart = await Cart.findById(cartId);
+    const cart = await Cart.findOne({userId:userId,status:"active"});
     if (!cart) {
       return res.status(404).json({ message: 'Giỏ hàng không tồn tại' });
     }
 
     // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-    const existingProductIndex = cart.items.findIndex((item) => item.productId.toString() === productId);
+    const existingProductIndex = cart.items.findIndex((item) => item.productId.toString() == productId);
+    console.log("existingProductIndex:",existingProductIndex);
     if (existingProductIndex > -1) {
       const previousQuantity = cart.items[existingProductIndex].quantity;
       cart.items[existingProductIndex].quantity = quantity;
@@ -99,7 +101,8 @@ router.put('/update', async (req, res) => {
     }
 
     await cart.save();
-    res.status(200).json({ message: 'Sản phẩm đã được cập nhật', cart });
+    const populated = await Cart.findById(cart._id).populate('items.productId');
+    res.status(200).json({ message: 'Sản phẩm đã được cập nhật', cart:populated });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi cập nhật sản phẩm trong giỏ hàng', error });
   }
@@ -107,16 +110,16 @@ router.put('/update', async (req, res) => {
 
 // Xóa sản phẩm khỏi giỏ hàng
 router.delete('/remove', async (req, res) => {
-  const { cartId, productId } = req.body;
+  const { userId, productId } = req.body;
 
   try {
-    const cart = await Cart.findById(cartId);
+    const cart = await Cart.findOne({userId,status:"active"});
     if (!cart) {
       return res.status(404).json({ message: 'Giỏ hàng không tồn tại' });
     }
 
     // Tìm và xóa sản phẩm khỏi giỏ hàng
-    const productIndex = cart.items.findIndex((item) => item.productId.toString() === productId);
+    const productIndex = cart.items.findIndex((item) => item.productId.toString() === String(productId));
     if (productIndex > -1) {
       const productPrice = cart.items[productIndex].price;
       const productQuantity = cart.items[productIndex].quantity;
@@ -128,7 +131,10 @@ router.delete('/remove', async (req, res) => {
       cart.items.splice(productIndex, 1);
       await cart.save();
 
-      res.status(200).json({ message: 'Sản phẩm đã được xóa khỏi giỏ hàng', cart });
+      // TRẢ VỀ GIỎ ĐÃ POPULATE để frontend không mất ảnh/tên/giá
+      const populated = await Cart.findById(cart._id).populate('items.productId');
+
+      res.status(200).json({ message: 'Sản phẩm đã được xóa khỏi giỏ hàng', cart:populated });
     } else {
       res.status(404).json({ message: 'Sản phẩm không có trong giỏ hàng' });
     }
