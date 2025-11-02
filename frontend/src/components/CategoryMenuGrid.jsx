@@ -2,19 +2,34 @@ import React from 'react';
 
 const CategoryMenuGrid = ({ items, scrollToCategory }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-      {items.map((item, index) => (
-        <div
-          key={index}
-          className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer"
-          onClick={() => scrollToCategory(index)} // Cuộn đến sản phẩm tương ứng khi nhấn vào category
-        >
-          <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />
-          <div className="p-4">
-            <h3 className="text-xl font-bold text-gray-800">{item.title}</h3>
-          </div>
+    <div className="section !my-3">
+      <div className="cat-strip">
+        <div className="cat-scroll flex items-stretch gap-4 no-scrollbar snap-x snap-mandatory px-3 py-3">
+          {items.map((item, index) => (
+            <button
+              key={index}
+              type="button"
+              className="cat-item relative shrink-0 snap-start w-[104px] sm:w-[120px] md:w-[132px] rounded-2xl bg-white
+             border border-gray-200 p-3 grid place-items-center text-center
+             transition-all hover:shadow-md hover:border-emerald-200 active:scale-[.98]"
+              onClick={() => scrollToCategory(index)}
+              aria-label={item.title || `Danh mục ${index + 1}`}
+              onKeyDown={(e) => { if (e.key === 'Enter') scrollToCategory(index); }}
+            >
+
+              <img
+                src={item.image}
+                alt={item.title || 'Danh mục'}
+                className="cat-img h-16 w-16 md:h-20 md:w-20 object-contain"
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="cat-title mt-2 text-[13px] md:text-sm leading-snug text-gray-700 line-clamp-2">{item.title}</div>
+            </button>
+          ))}
         </div>
-      ))}
+      </div>
+      
     </div>
   );
 };

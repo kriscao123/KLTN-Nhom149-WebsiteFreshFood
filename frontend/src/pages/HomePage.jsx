@@ -111,17 +111,35 @@ function HomePage() {
 
   const sections = useMemo(() => {
     const grouped = new Map();
+    // chuẩn hoá field để dùng chung
+    const normalize = (p) => ({
+      _id: p._id,
+      productName: p.productName || p.name || "",
+      imageUrl: p.imageUrl || p.thumbnail || "",
+      unitPrice: Number(p.unitPrice ?? p.price ?? 0),
+      listPrice:
+        p.listPrice != null
+          ? Number(p.listPrice)
+          : p.compareAt != null
+          ? Number(p.compareAt)
+          : null,
+    });
+
 
     (products || []).forEach((p) => {
       const catId = p.categoryId || p.category?._id;
       if (!catId) return;
       if (!grouped.has(catId)) grouped.set(catId, []);
-      grouped.get(catId).push({
-        _id: p._id,
-        productName: p.productName || p.name || "",
-        imageUrl: p.imageUrl || p.thumbnail || "",
-        unitPrice: p.unitPrice ?? p.price ?? 0,
-      });
+      grouped.get(catId).push(normalize(p));
+    });
+
+    const promoProducts = (products || [])
+      .map(normalize)
+      .filter((x) => x.listPrice != null && x.unitPrice < x.listPrice)
+      .sort((a, b) => {
+        const da = (a.listPrice - a.unitPrice) / (a.listPrice || 1);
+        const db = (b.listPrice - b.unitPrice) / (b.listPrice || 1);
+        return db - da;
     });
 
     const list = [];
@@ -134,7 +152,14 @@ function HomePage() {
       }
     });
 
-    return list;
+    if (promoProducts.length) {
+      list.unshift({
+        id: "promo",
+        title: "Đang khuyến mãi",
+        items: promoProducts,
+      });
+}
+return list;
   }, [products, categories, categoryMap]);
 
   const menuItems = useMemo(() => {
@@ -169,28 +194,28 @@ function HomePage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <div className="relative p-4">
+      <div className="relative section !my-4">
         <HeroSection />
       </div>
 
       {/* SidebarMenu and CategoryMenuGrid are aligned */}
-      <div className="flex flex-row bg-green-50 shadow-lg">
+      <div className="flex flex-row bg-emerald-50/50 shadow-md">
         {/* SidebarMenu */}
-        <div className="bg-white rounded-lg shadow-lg p-4 ml-60">
+        <div className="card p-4 ml-60">
           <SidebarMenu categories={category} />
         </div>
 
         {/* Category Menu Grid and Products - both will have equal height */}
-        <div className="homepage-container">
+        <div className="homepage-container section !my-6">
           <CategoryMenuGrid items={menuItems} scrollToCategory={scrollToCategory} />
 
           {/* Các Mục Sản Phẩm */}
-          <div className="mx-auto mt-4" id="products">
+          <div className="mx-auto mt-6" id="products">
             {sections.map((sec, index) => (
           <div 
             ref={(el) => (productSections.current[index] = el)} 
             key={sec.id}
-            className="product-section"
+            className="product-section my-6"
           >
             <ProductCarouselSection
               id={sec.id}

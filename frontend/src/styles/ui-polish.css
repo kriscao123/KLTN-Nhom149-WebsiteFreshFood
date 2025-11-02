@@ -1,0 +1,85 @@
+@reference "tailwindcss";
+
+/* ===== Base & utilities giữ nguyên như trước ===== */
+@layer base {
+  :root{
+    --nh-primary: 154 84% 35%;
+    --nh-primary-ink: 154 86% 12%;
+    --nh-ring: 154 84% 40%;
+  }
+  html { scroll-behavior: smooth; }
+  body { @apply bg-white text-gray-900 antialiased; }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .shimmer{ position:relative; overflow:hidden; }
+  .shimmer::after{
+    content:""; position:absolute; inset:0; transform:translateX(-100%);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);
+    animation:nh-shimmer 1.6s infinite;
+  }
+  @keyframes nh-shimmer{100%{transform:translateX(100%)}}
+}
+
+/* ===== Components ===== */
+@layer components {
+  .glass { @apply bg-white/70 backdrop-blur border border-gray-200; }
+  .section { @apply container mx-auto px-4 md:px-6 lg:px-8 my-8; }
+
+  .card { @apply rounded-xl border border-gray-200 bg-white shadow-[0_1px_0_#0000000d]; }
+  .card-hover { @apply transition-all hover:shadow-md hover:border-gray-300; }
+
+  .chip { @apply inline-flex items-center gap-2 px-3 py-2 rounded-full border bg-white hover:bg-gray-50 text-sm; }
+
+  /* 🔧 Phần chung cho tất cả biến thể nút: áp dụng UTILITIES trực tiếp  */
+  :is(.btn, .btn-primary, .btn-ghost) {
+    @apply inline-flex items-center justify-center h-10 px-4 rounded-lg
+           font-medium shadow-sm focus:outline-none focus:ring-2;
+  }
+
+  /* Biến thể cụ thể */
+  .btn { @apply border border-gray-200 bg-white hover:bg-gray-50 focus:ring-gray-300; }
+  .btn-primary { @apply text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-400; }
+  .btn-ghost { @apply bg-white border border-gray-200 hover:bg-gray-50; }
+
+  .input { @apply w-full h-10 rounded-lg border px-3 focus:outline-none focus:ring-2 focus:ring-emerald-400; }
+
+  .kbd { @apply inline-flex items-center justify-center rounded border px-1.5 h-6 text-[11px] text-gray-600; }
+  .cat-strip {
+    @apply bg-emerald-50/60 rounded-2xl border border-emerald-100
+           shadow-[inset_0_1px_0_rgba(16,185,129,.12)];
+  }
+  /* Container cuộn ngang, không hiện scrollbar, có snap */
+  .cat-scroll {
+    @apply flex items-stretch gap-3 overflow-x-auto snap-x snap-mandatory px-2 py-2;
+  }
+  /* Ô danh mục: ô trắng nhỏ, hover nhô, snap từng item */
+  .cat-item {
+    @apply relative shrink-0 snap-start w-[88px] sm:w-[96px] rounded-xl bg-white
+           border border-gray-200 p-2 grid place-items-center text-center
+           transition-all hover:shadow-md hover:border-emerald-200 active:scale-[.98];
+  }
+  /* Ảnh danh mục (giữ tỉ lệ, không giật layout) */
+  .cat-img {
+    @apply h-14 w-14 object-contain;
+  }
+  /* Tên danh mục 2 dòng, chữ nhỏ */
+  .cat-title {
+    @apply mt-2 text-xs leading-tight text-gray-700 line-clamp-2;
+  }
+  /* Badge góc trên trái (%, giá/kg, “mua”…). Đổi màu bằng class phụ */
+  .cat-badge {
+    @apply absolute -top-1 left-1 rounded-full text-[10px] font-semibold leading-none
+           px-1.5 py-0.5 text-white ring-1 ring-white/70 shadow;
+  }
+  .cat-badge-emerald { @apply bg-emerald-600; }
+  .cat-badge-red     { @apply bg-red-600; }
+  .cat-badge-amber   { @apply bg-amber-500; }
+}

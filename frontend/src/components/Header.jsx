@@ -153,11 +153,11 @@ const Header = () => {
     }
 
     return (
-        <header className="sticky top-0 left-0 w-full bg-green-600 text-white z-50 shadow-md">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <header className="sticky top-0 left-0 w-full glass z-50">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
         {/* Logo */}
         <div>
-          <Link to="/" className="text-3xl font-bold text-white">
+          <Link to="/" className="text-2xl md:text-3xl font-extrabold tracking-tight text-emerald-700">
             NH Food
           </Link>
         </div>
@@ -169,12 +169,9 @@ const Header = () => {
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                             placeholder="Tìm kiếm sản phẩm..."
-                            className="w-full px-4 py-2 border  border-gray-300 rounded-md focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
+                            className="input pl-9"
                         />
-                        <button
-                            type="submit"
-                            className="absolute right-0 top-0 h-full bg-gray-100 hover:bg-gray-300 text-white px-4 rounded-r-md"
-                        >
+                       <button type="submit" className="absolute right-1 top-1 h-8 px-3 btn-ghost rounded-md">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="h-4 w-4 text-black"
@@ -192,12 +189,12 @@ const Header = () => {
                     </form>
 
                     {suggestions.length > 0 && (
-                        <ul className="absolute z-20 w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
+                        <ul className="absolute z-20 w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-md max-h-60 overflow-y-auto">
                             {suggestions.map((suggestion) => (
                                 <li
                                     key={suggestion.id}
                                     onClick={() => handleSuggestionClick(suggestion.id)}
-                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                                    className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center"
                                 >
                                     {suggestion.image && (
                                         <img
@@ -214,21 +211,21 @@ const Header = () => {
                 </div>
 
                 {/* Navigation */}
-                <div className="hidden md:flex items-center space-x-6 ml-6">
-                    <Link to="/" className="py-2 font-medium hover:text-gray-300">
+                <div className="hidden md:flex items-center gap-6 ml-6">
+                    <Link to="/" className="py-2 font-medium text-gray-700 hover:text-emerald-700">
                         Trang chủ
                     </Link>
-                    <Link to="/products" className="py-2 font-medium hover:text-gray-300">
+                    <Link to="/products" className="py-2 font-medium text-gray-700 hover:text-emerald-700">
                         Sản phẩm
                     </Link>
-                    <Link to="/contact" className="py-2 font-medium hover:text-gray-300">
+                    <Link to="/contact" className="py-2 font-medium text-gray-700 hover:text-emerald-700">
                         Liên hệ
                     </Link>
-                    <Link to="/about" className="py-2 font-medium hover:text-gray-300">
+                    <Link to="/about" className="py-2 font-medium text-gray-700 hover:text-emerald-700">
                         Giới thiệu
                     </Link>
                     {!isLoggedIn && (
-                        <Link to="/login" className="py-2 font-medium hover:text-gray-300">
+                        <Link to="/login" className="py-2 font-medium text-gray-700 hover:text-emerald-700">
                             Đăng nhập
                         </Link>
                     )}
@@ -236,12 +233,12 @@ const Header = () => {
                         <div className="relative">
                             <button
                                 onClick={toggleUserMenu}
-                                className="py-2 font-medium hover:text-gray-300 focus:outline-none user-menu-button"
+                                className="py-2 font-medium text-gray-700 hover:text-emerald-700 focus:outline-none user-menu-button"
                             >
                                 {user.username}
                             </button>
                             {isUserMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-xl z-20 user-menu">
+                                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-20 user-menu">
                                     <Link
                                         to="/profile"
                                         className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
@@ -264,11 +261,11 @@ const Header = () => {
                 <div className="ml-4">
                     <Link
                         to="/cart"
-                        className="flex items-center bg-gray-200 px-4 py-2 border border-gray-300 text-gray-900 rounded-md hover:bg-gray-100 relative"
+                        className="relative btn-ghost"
                     >
                         🛒
                         {cartCount > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            <span className="absolute -top-2 -right-2 bg-emerald-600 text-white text-xs rounded-full h-5 w-5 grid place-items-center">
                                 {cartCount}
                             </span>
                         )}
@@ -279,7 +276,7 @@ const Header = () => {
                 {/* Mobile menu button */}
                 <div className="md:hidden ml-4">
                     <button
-                        className="p-2 hover:bg-gray-100 rounded-md"
+                        className="btn-ghost h-10 w-10"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
                         ☰
@@ -289,7 +286,7 @@ const Header = () => {
 
             {/* Mobile menu */}
             {isMenuOpen && (
-                <div className="md:hidden bg-white border-t border-gray-200 py-2">
+                <div className="md:hidden bg-white border-t border-gray-200 py-2 shadow-sm">
                     <Link to="/" className="block px-4 py-2 text-gray-900 hover:bg-gray-100">
                         Trang chủ
                     </Link>
@@ -348,13 +345,13 @@ const Header = () => {
                         <div className="flex justify-end space-x-4">
                             <button
                                 onClick={() => setIsLogoutModalOpen(false)}
-                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none"
+                                className="btn-ghost focus:outline-none"
                             >
                                 Hủy
                             </button>
                             <button
                                 onClick={handleLogoutConfirm}
-                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none"
+                                className="btn-primary focus:outline-none"
                             >
                                 Đăng xuất
                             </button>

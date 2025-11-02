@@ -76,7 +76,7 @@ const vietnamLocations = {
 const CheckoutPage = () => {
     const [cartItems, setCartItems] = useState([])
     const [products, setProducts] = useState([])
-    const [isLoading, setIsLoading] = useState(true)
+    const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [notification, setNotification] = useState(null)
@@ -96,44 +96,44 @@ const CheckoutPage = () => {
 
     const navigate = useNavigate()
     const location = useLocation()
-    const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung-dqzs.onrender.com"
+    // const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung-dqzs.onrender.com"
 
     // Fetch cart items and products
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!userId) {
-                setIsLoading(false)
-                return
-            }
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         if (!userId) {
+    //             setIsLoading(false)
+    //             return
+    //         }
 
-            try {
-                setIsLoading(true)
-                const params = new URLSearchParams(location.search)
-                const itemIds = params.get("items")?.split(",") || []
-                if (itemIds.length === 0) throw new Error("Không có sản phẩm nào được chọn")
+    //         try {
+    //             setIsLoading(true)
+    //             const params = new URLSearchParams(location.search)
+    //             const itemIds = params.get("items")?.split(",") || []
+    //             if (itemIds.length === 0) throw new Error("Không có sản phẩm nào được chọn")
 
-                const cartResponse = await fetch(`${BASE_API_URL}/api/carts/user/${userId}`)
-                if (!cartResponse.ok) throw new Error("Không thể tải giỏ hàng")
-                const cartData = await cartResponse.json()
-                const selectedItems = cartData.cartItems.filter(item => itemIds.includes(item.cartItemId))
-                if (!selectedItems.length) throw new Error("Không có sản phẩm hợp lệ trong giỏ hàng")
-                setCartItems(selectedItems)
+    //             const cartResponse = await fetch(`/cart/user/${userId}`)
+    //             if (!cartResponse.ok) throw new Error("Không thể tải giỏ hàng")
+    //             const cartData = await cartResponse.json()
+    //             const selectedItems = cartData.cartItems.filter(item => itemIds.includes(item.cartItemId))
+    //             if (!selectedItems.length) throw new Error("Không có sản phẩm hợp lệ trong giỏ hàng")
+    //             setCartItems(selectedItems)
 
-                const productResponse = await fetch(`${BASE_API_URL}/api/products?page=0&size=1000`)
-                if (!productResponse.ok) throw new Error("Không thể tải sản phẩm")
-                const productData = await productResponse.json()
-                if (!productData.content?.length) throw new Error("Không có sản phẩm nào được tải")
-                setProducts(productData.content)
-            } catch (err) {
-                console.error("Lỗi khi tải giỏ hàng:", err)
-                setError(err.message || "Không thể tải thông tin thanh toán. Vui lòng thử lại.")
-            } finally {
-                setIsLoading(false)
-            }
-        }
+    //             const productResponse = await fetch(`/products?page=0&size=1000`)
+    //             if (!productResponse.ok) throw new Error("Không thể tải sản phẩm")
+    //             const productData = await productResponse.json()
+    //             if (!productData.content?.length) throw new Error("Không có sản phẩm nào được tải")
+    //             setProducts(productData.content)
+    //         } catch (err) {
+    //             console.error("Lỗi khi tải giỏ hàng:", err)
+    //             setError(err.message || "Không thể tải thông tin thanh toán. Vui lòng thử lại.")
+    //         } finally {
+    //             setIsLoading(false)
+    //         }
+    //     }
 
-        fetchData()
-    }, [userId, location.search])
+    //     fetchData()
+    // }, [userId, location.search])
 
     // Tính toán tóm tắt đơn hàng
     const calculateSummary = () => {
@@ -193,7 +193,7 @@ const CheckoutPage = () => {
             setIsSubmitting(true)
             let orderId
 
-            const existingOrdersResponse = await fetch(`${BASE_API_URL}/api/orders?userId=${userId}`)
+            const existingOrdersResponse = await fetch(`/orders?userId=${userId}`)
             if (!existingOrdersResponse.ok) {
                 throw new Error("Không thể kiểm tra đơn hàng hiện có")
             }
@@ -231,7 +231,7 @@ const CheckoutPage = () => {
 
                 console.log("Sending orderData:", JSON.stringify(orderData)) // Debug
 
-                const orderResponse = await fetch(`${BASE_API_URL}/api/orders`, {
+                const orderResponse = await fetch(`/orders`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(orderData)
@@ -266,7 +266,7 @@ const CheckoutPage = () => {
                 customerEmail: user?.email || "user@example.com"
             }
 
-            const response = await fetch(`${BASE_API_URL}/api/payments/sepay`, {
+            const response = await fetch(`/payments/sepay`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -309,7 +309,7 @@ const CheckoutPage = () => {
         try {
             setIsSubmitting(true)
 
-            const statusResponse = await fetch(`${BASE_API_URL}/api/payments/${sepayPayment.paymentId}`)
+            const statusResponse = await fetch(`/payments/${sepayPayment.paymentId}`)
             if (!statusResponse.ok) {
                 const statusContentType = statusResponse.headers.get("Content-Type")
                 if (statusContentType && statusContentType.includes("application/json")) {
@@ -328,7 +328,7 @@ const CheckoutPage = () => {
             }
 
             for (const item of cartItems) {
-                await fetch(`${BASE_API_URL}/api/carts/items`, {
+                await fetch(`/carts/items`, {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ userId, productId: item.productId })
@@ -401,7 +401,7 @@ const CheckoutPage = () => {
 
             console.log("Sending orderData:", JSON.stringify(orderData)) // Debug
 
-            const orderResponse = await fetch(`${BASE_API_URL}/api/orders`, {
+            const orderResponse = await fetch(`/orders`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(orderData)
@@ -424,7 +424,7 @@ const CheckoutPage = () => {
             }
             const order = await orderResponse.json()
 
-            const statusResponse = await fetch(`${BASE_API_URL}/api/orders/${order.orderId}`)
+            const statusResponse = await fetch(`/orders/${order.orderId}`)
             if (!statusResponse.ok) {
                 const statusContentType = statusResponse.headers.get("Content-Type")
                 if (statusContentType && statusContentType.includes("application/json")) {
@@ -445,7 +445,7 @@ const CheckoutPage = () => {
             }
 
             for (const item of cartItems) {
-                await fetch(`${BASE_API_URL}/api/carts/items`, {
+                await fetch(`/carts/items`, {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ userId, productId: item.productId })
@@ -482,7 +482,7 @@ const CheckoutPage = () => {
             }
         }
 
-        const orderDetailsResponse = await fetch(`${BASE_API_URL}/api/orders/${customOrderId}`)
+        const orderDetailsResponse = await fetch(`/orders/${customOrderId}`)
         if (!orderDetailsResponse.ok) {
             toast.error("Không thể lấy chi tiết đơn hàng")
             return

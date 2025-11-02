@@ -3,8 +3,19 @@ import { Link } from "react-router-dom"
 
 const formatCurrency = (v) => (v ?? 0).toLocaleString("vi-VN")
 
+
+
 export default function ProductCard({ product }) {
-  const { _id, productName, imageUrl, unitPrice } = product
+  const { _id, productName, imageUrl, unitPrice,listPrice } = product
+
+  const promoPrice = product.listPrice ?? null;
+  const price     = product.unitPrice ?? 0;
+  const hasPromo  = promoPrice && price < promoPrice;
+  const discountPercent = hasPromo ? Math.round(100 - (price / promoPrice) * 100) : 0;
+
+  const promoLabel  = product.promoLabel || product.promo?.label || '';
+  const weightLabel = product.weightLabel || product.promo?.weight || '';
+
 
   return (
     <Link
@@ -12,12 +23,20 @@ export default function ProductCard({ product }) {
       className="group block bg-white rounded-xl shadow-sm ring-1 ring-gray-100 hover:shadow-md transition-all overflow-hidden"
     >
       {/* Ảnh: chiều cao cố định để không phóng quá to */}
-      <div className="w-full h-40 sm:h-44 md:h-48 bg-gray-50 grid place-items-center overflow-hidden">
+      <div className="relative rounded-md overflow-hidden">
+        {/* Badge khuyến mãi */}
+        {hasPromo && (
+          <span className="absolute top-1 right-1 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-md shadow ring-1 ring-white/80">
+            -{discountPercent}%
+          </span>
+        )}
+
         <img
-          src={imageUrl || "/img/placeholder.png"}
+          src={imageUrl}
           alt={productName}
-          className="max-h-full max-w-full object-contain group-hover:scale-[1.03] transition-transform duration-300"
           loading="lazy"
+          decoding="async"
+          className="w-full aspect-[4/3] object-contain bg-white"
         />
       </div>
 
@@ -27,10 +46,15 @@ export default function ProductCard({ product }) {
           {productName}
         </h3>
 
-        <div className="mt-2 flex items-baseline gap-1">
+        <div className="mt-2 flex items-baseline gap-2">
           <span className="text-base sm:text-lg font-semibold text-green-700">
-            {formatCurrency(unitPrice)}₫
+            {formatCurrency(price)}₫
           </span>
+          {hasPromo && (
+            <span className="text-gray-400 line-through text-sm">
+              {formatCurrency(promoPrice)}₫
+            </span>
+          )}
         </div>
 
         <button
