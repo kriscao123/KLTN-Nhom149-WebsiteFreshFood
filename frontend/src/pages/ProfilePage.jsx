@@ -91,7 +91,7 @@ const ProfilePage = () => {
                 setAddress(storedUser.address.street+storedUser.address.district+storedUser.address.city || "");
 
                 // Fetch orders for the user
-                const orderResponse = await api.get(`/orders/all/user/${storedUser.email}`);
+                const orderResponse = await api.get(`/order/user/${storedUser.email}`);
                 const ordersData = orderResponse.data || [];
                 setOrders(ordersData);
 

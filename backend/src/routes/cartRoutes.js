@@ -143,24 +143,50 @@ router.delete('/remove', async (req, res) => {
   }
 });
 
-// Xóa giỏ hàng hoặc hoàn tất đơn hàng
+
+const Order = require('../models/Order'); // Đảm bảo rằng model Order đã được import
+
 router.post('/checkout', async (req, res) => {
-  const { cartId } = req.body;
+  const { userId, deliveryAddress, paymentMethod, items, totalAmount } = req.body;
+
+  if (!userId || !deliveryAddress || !paymentMethod || !items.length) {
+    return res.status(400).json({ message: "Thiếu thông tin cần thiết" });
+  }
 
   try {
-    const cart = await Cart.findById(cartId);
+    // Lấy giỏ hàng của người dùng
+    const cart = await Cart.findOne({ userId: userId, status: 'active' });
     if (!cart) {
-      return res.status(404).json({ message: 'Giỏ hàng không tồn tại' });
+      return res.status(404).json({ message: "Giỏ hàng không tồn tại" });
     }
 
-    // Cập nhật trạng thái giỏ hàng
-    cart.status = 'checked_out';
+    // Tạo đơn hàng mới
+    const orderData = {
+      customerId: userId,
+      orderItems: items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice
+      })),
+      orderStatus: "Pending",  // Đơn hàng sẽ ở trạng thái Pending khi tạo
+      paymentMethod,
+      paymentStatus: "Pending", // Thanh toán chờ xử lý
+      shipAddress: deliveryAddress,
+      totalAmount
+    };
+
+    const newOrder = await Order.create(orderData);
+
+    // Cập nhật trạng thái giỏ hàng thành "Completed"
+    cart.status = 'Completed';
     await cart.save();
 
-    res.status(200).json({ message: 'Giỏ hàng đã được hoàn tất', cart });
+    res.status(201).json({ message: "Đặt hàng thành công", order: newOrder });
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi khi hoàn tất giỏ hàng', error });
+    console.error(error);
+    res.status(500).json({ message: "Lỗi khi xử lý thanh toán", error });
   }
 });
+
 
 module.exports = router;

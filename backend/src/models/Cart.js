@@ -30,7 +30,7 @@ const cartSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'checked_out', 'abandoned'],
+    enum: ['active', 'Completed', 'abandoned'],
     default: 'active',
   },
 });

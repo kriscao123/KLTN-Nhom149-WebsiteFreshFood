@@ -10,6 +10,7 @@ const recommendRoutes = require('./src/routes/recommend');
 const interactionRoutes = require('./src/routes/interactions');
 const categoryRoutes=require('./src/routes/categoryRoutes');
 const cartRoutes=require('./src/routes/cartRoutes');
+const orderRoutes=require('./src/routes/orderRoutes');
 
 const app = express();
 app.use(cors({ origin: ['http://localhost:5174'], credentials: true }));
@@ -24,6 +25,7 @@ app.use('/api/recommend', recommendRoutes);
 app.use('/api/interactions', interactionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/order', orderRoutes);
 
 const port = process.env.PORT || 5000;
 connect().then(() => { 

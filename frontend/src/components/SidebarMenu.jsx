@@ -27,7 +27,18 @@ const SidebarMenu = ({ categories }) => {
               <ul className="ml-4 mt-2">
                 {category.subCategories.map((subCategory, subIndex) => (
                   <li key={subIndex} className="text-sm text-gray-600 hover:underline py-1">
-                    <a href={subCategory.link}>{subCategory.title}</a>
+                    <button
+                      type="button"
+                      className="block w-full text-left px-3 py-2 hover:bg-gray-50"
+                      onClick={() => {
+                        if (subCategory.link === "/khuyenmai") {
+                          const el = document.getElementById("section-promo");
+                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                      }}
+                    >
+                      {subCategory.title}
+                    </button>
                   </li>
                 ))}
               </ul>

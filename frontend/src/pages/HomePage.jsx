@@ -155,6 +155,7 @@ function HomePage() {
     if (promoProducts.length) {
       list.unshift({
         id: "promo",
+        htmlId:"section-promo",
         title: "Đang khuyến mãi",
         items: promoProducts,
       });
@@ -212,8 +213,9 @@ return list;
           {/* Các Mục Sản Phẩm */}
           <div className="mx-auto mt-6" id="products">
             {sections.map((sec, index) => (
-          <div 
-            ref={(el) => (productSections.current[index] = el)} 
+          <div
+            id={sec.htmlId || `section-${sec.id}`}
+            ref={(el) => (productSections.current[index] = el)}
             key={sec.id}
             className="product-section my-6"
           >
