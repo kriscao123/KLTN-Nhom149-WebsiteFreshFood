@@ -36,7 +36,7 @@ const ProfilePage = () => {
 
     const getStatusBadgeColor = (status) => {
         switch (status) {
-            case "PAYMENT_SUCCESS": return "bg-amber-100 text-amber-800 border border-amber-200";
+            case "PENDING": return "bg-amber-100 text-amber-800 border border-amber-200";
             case "CONFIRMED": return "bg-emerald-100 text-emerald-800 border border-emerald-200";
             case "SHIPPING": return "bg-blue-100 text-blue-800 border border-blue-200";
             case "DELIVERED": return "bg-green-100 text-green-800 border border-green-200";
@@ -47,7 +47,7 @@ const ProfilePage = () => {
 
     const getStatusText = (status) => {
         switch (status) {
-            case "PAYMENT_SUCCESS": return "Chờ xác nhận";
+            case "PENDING": return "Chờ xác nhận";
             case "CONFIRMED": return "Đã xác nhận";
             case "SHIPPING": return "Đang giao hàng";
             case "DELIVERED": return "Đã giao hàng";
@@ -66,7 +66,7 @@ const ProfilePage = () => {
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case "PAYMENT_SUCCESS": return <Clock className="h-4 w-4" />;
+            case "PENDING": return <Clock className="h-4 w-4" />;
             case "CONFIRMED": return <CheckCircle className="h-4 w-4" />;
             case "SHIPPING": return <Truck className="h-4 w-4" />;
             case "DELIVERED": return <Package className="h-4 w-4" />;
@@ -77,68 +77,76 @@ const ProfilePage = () => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            try {
-                const storedUser = getUserFromLocalStorage();
-                if (!storedUser?.email) {
-                    throw new Error("Vui lòng đăng nhập để xem thông tin cá nhân");
-                }
-
-                // Set user data
-                setUser(storedUser);
-                setUsername(storedUser.username);
-                setEmail(storedUser.email);
-                setPhone(storedUser.phone || "");
-                setAddress(storedUser.address.street+storedUser.address.district+storedUser.address.city || "");
-
-                // Fetch orders for the user
-                const orderResponse = await api.get(`/order/user/${storedUser.email}`);
-                const ordersData = orderResponse.data || [];
-                setOrders(ordersData);
-
-                // Create a set of product IDs from order details
-                const productIds = new Set();
-                ordersData.forEach(order => {
-                    if (order.orderDetails) {
-                        order.orderDetails.forEach(detail => {
-                            productIds.add(detail.productId);
-                        });
-                    }
-                });
-
-                // Map order details by order ID
-                const detailsByOrder = ordersData.reduce((acc, order) => {
-                    acc[order.orderId] = order.orderDetails || [];
-                    return acc;
-                }, {});
-                setOrderDetails(detailsByOrder);
-
-                // Fetch products for relevant product IDs
-                const productPromises = Array.from(productIds).map(productId =>
-                    api.get(`/products/${productId}`)
-                );
-                const productResponses = await Promise.all(productPromises);
-                const productsData = productResponses
-                    .map(response => response.data)
-                    .filter(product => product !== null);
-
-                const productsById = productsData.reduce((acc, product) => {
-                    acc[product.productId] = product;
-                    return acc;
-                }, {});
-                setProducts(productsById);
-            } catch (err) {
-                console.error("Error fetching data:", err);
-                if (err.response?.status === 404) {
-                    setOrders([]);
-                    setOrderDetails({});
-                    setProducts({});
-                } else {
-                    setError(err.response?.data?.message || "Không thể tải dữ liệu. Vui lòng thử lại.");
-                }
-            } finally {
-                setIsLoading(false);
+        try {
+            const storedUser = getUserFromLocalStorage();
+            if (!storedUser?.email) {
+                throw new Error("Vui lòng đăng nhập để xem thông tin cá nhân");
             }
-        };
+
+            // Set user data
+            setUser(storedUser);
+            setUsername(storedUser.username);
+            setEmail(storedUser.email);
+            setPhone(storedUser.phone || "");
+            setAddress(storedUser.address.street+storedUser.address.district+storedUser.address.city || "");
+
+            // Fetch orders for the user
+            const orderResponse = await api.get(`/order/user/${storedUser.userId}`);
+            const ordersData = Array.isArray(orderResponse.data) ? orderResponse.data : [];  // Đảm bảo ordersData là mảng
+            setOrders(ordersData);
+
+            // Khai báo productIds là một Set để lưu các productId duy nhất
+            const productIds = new Set();
+            ordersData.forEach(order => {
+                    order.orderItems.forEach(item => {
+                        productIds.add(item.productId);
+                    });
+            });
+
+            // Lặp qua các đơn hàng và thêm productId vào productIds
+            ordersData.forEach(order => {
+                if (order.orderDetails) {
+                    order.orderDetails.forEach(detail => {
+                        productIds.add(detail.productId);  // Thêm productId vào Set
+                    });
+                }
+            });
+
+            // Map order details by order ID
+            const detailsByOrder = ordersData.reduce((acc, order) => {
+                acc[order.orderId] = order.orderDetails || [];
+                return acc;
+            }, {});
+            setOrderDetails(detailsByOrder);
+
+            // Fetch products for relevant product IDs
+            const productPromises = Array.from(productIds).map(productId =>
+                api.get(`/products/${productId}`)
+            );
+            const productResponses = await Promise.all(productPromises);
+            const productsData = productResponses
+                .map(response => response.data)
+                .filter(product => product !== null);
+
+            const productsById = productsData.reduce((acc, product) => {
+                acc[product._id] = product;
+                return acc;
+            }, {});
+            setProducts(productsById);
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            if (err.response?.status === 404) {
+                setOrders([]);
+                setOrderDetails({});
+                setProducts({});
+            } else {
+                setError(err.response?.data?.message || "Không thể tải dữ liệu. Vui lòng thử lại.");
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
 
         fetchUserData();
     }, []);
@@ -228,18 +236,17 @@ const ProfilePage = () => {
         }
     };
 
-    const filteredOrders = orders.filter(order => {
-        const matchesOrder = order.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.username.toLowerCase().includes(searchQuery.toLowerCase());
+    const filteredOrders = Array.isArray(orders) ? orders.filter(order => {
+        const matchesOrder = (order._id && order._id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (order.shipAddress && (order.shipAddress.line1 + " " + order.shipAddress.ward + " " + order.shipAddress.district + " " + order.shipAddress.province).toLowerCase().includes(searchQuery.toLowerCase()));
 
-        const matchesProduct = orderDetails[order.orderId]?.some(detail => {
+        const matchesProduct = order.orderItems?.some(detail => {
             const product = products[detail.productId] || {};
             return product.productName?.toLowerCase().includes(searchQuery.toLowerCase());
         }) || false;
 
         return matchesOrder || matchesProduct;
-    });
+    }) : [];  
 
     const showOrderDetails = (order) => {
         const formatCurrency = (amount) => {
@@ -550,52 +557,59 @@ const ProfilePage = () => {
                                         <p className="text-gray-600">Không tìm thấy đơn hàng nào.</p>
                                     ) : (
                                         <div className="space-y-4 max-h-[750px] overflow-y-auto">
-                                            {filteredOrders.map((order) => (
-                                                <div key={order.orderId} className="border border-gray-500 rounded-lg p-4 bg-white shadow-lg hover:shadow-md transition-all">
-                                                    <div className="flex items-center justify-between mb-4">
-                                                        <div className="flex items-center">
-                                                            {getStatusIcon(order.status)}
-                                                            <span className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(order.status)}`}>
-                                                                {getStatusText(order.status)}
-                                                            </span>
+                                            {filteredOrders.length === 0 ? (
+                                                <p className="text-gray-600">Không tìm thấy đơn hàng nào.</p>
+                                            ) : (
+                                                filteredOrders.map((order) => (
+                                                    <div key={order._id} className="border border-gray-500 rounded-lg p-4 bg-white shadow-lg hover:shadow-md transition-all">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="flex items-center">
+                                                                {getStatusIcon(order.orderStatus)} {/* Hiển thị trạng thái đơn hàng */}
+                                                                <span className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(order.orderStatus)}`}>
+                                                                    {getStatusText(order.orderStatus)} {/* Hiển thị trạng thái bằng text */}
+                                                                </span>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => showOrderDetails(order)}
+                                                                className="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
+                                                            >
+                                                                Xem chi tiết
+                                                            </button>
                                                         </div>
-                                                        <button
-                                                            onClick={() => showOrderDetails(order)}
-                                                            className="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
-                                                        >
-                                                            Xem chi tiết
-                                                        </button>
-                                                    </div>
-                                                    <div className="border-t border-gray-200 pt-4">
-                                                        <p className="text-sm text-gray-600 mb-2">Địa chỉ giao: {order.deliveryAddress}</p>
-                                                        <p className="text-sm font-semibold text-gray-800">
-                                                            Tổng tiền: {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.totalAmount+order.totalAmount/10)}
-                                                        </p>
-                                                        <div className="mt-4">
-                                                            <h4 className="text-sm font-semibold text-gray-700 mb-2">Sản phẩm:</h4>
-                                                            {orderDetails[order.orderId]?.map((detail) => {
-                                                                const product = products[detail.productId] || {};
-                                                                return (
-                                                                    <div key={detail.orderDetailId} className="flex items-center space-x-4 mb-2">
-                                                                        <img
-                                                                            src={product.imageUrl || "/placeholder.svg"}
-                                                                            alt={product.productName || "Sản phẩm"}
-                                                                            className="w-12 h-12 object-cover rounded"
-                                                                        />
-                                                                        <div>
-                                                                            <p className="text-sm font-medium">{product.productName || "Sản phẩm không xác định"}</p>
-                                                                            <p className="text-sm text-gray-600">
-                                                                                Số lượng: {detail.quantity} x {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(detail.unitPrice+detail.unitPrice/10)}
-                                                                            </p>
+                                                        <div className="border-t border-gray-200 pt-4">
+                                                            <p className="text-sm text-gray-600 mb-2">Địa chỉ giao: {order.shipAddress.line1}, {order.shipAddress.ward}, {order.shipAddress.district}, {order.shipAddress.province}</p>
+                                                            <p className="text-sm font-semibold text-gray-800">
+                                                                Tổng tiền: {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.totalAmount)}
+                                                            </p>
+                                                            <div className="mt-4">
+                                                                <h4 className="text-sm font-semibold text-gray-700 mb-2">Sản phẩm:</h4>
+                                                                {order.orderItems.map((item, index) => {  // Duyệt qua orderItems
+                                                                    const product = products[item.productId] || {};
+                                                            
+                                                                    return (
+                                                                        <div key={item._id} className="flex items-center space-x-4 mb-2">
+                                                                            <img
+                                                                                src={product.imageUrl || "/placeholder.svg"}
+                                                                                alt={product.productName || "Sản phẩm"}
+                                                                                className="w-12 h-12 object-cover rounded"
+                                                                            />
+                                                                            <div>
+                                                                                <p className="text-sm font-medium">{product.productName || "Sản phẩm không xác định"}</p>
+                                                                                <p className="text-sm text-gray-600">
+                                                                                    Số lượng: {item.quantity} x {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.unitPrice)}
+                                                                                </p>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                );
-                                                            })}
+                                                                    );
+                                                                })}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                ))
+                                            )}
                                         </div>
+
+
                                     )}
                                 </div>
                             )}
