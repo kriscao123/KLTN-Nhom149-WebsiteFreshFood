@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const Cart = require('../models/Cart'); // Đảm bảo đường dẫn đúng tới model Cart
+const Cart = require('../models/Cart');
 
+const Interaction = require('../models/Interaction');
 const router = express.Router();
 
 // Tạo giỏ hàng mới cho người dùng
@@ -65,12 +66,21 @@ router.put('/add', async (req, res) => {
       cart.items.push({ productId, quantity, price });
     }
 
+    const newInteraction = new Interaction({
+      user_id:userId,
+      product_id:productId,
+      type: 'add_to_cart',
+      value: quantity,  // Giá trị là số lượng thêm vào giỏ
+    });
+
+    await newInteraction.save();
+
     // Cập nhật tổng giá trị giỏ hàng
     cart.totalPrice += price * quantity;
     await cart.save(); // Lưu lại giỏ hàng đã cập nhật
 
     const populated = await Cart.findById(cart._id).populate('items.productId');
-    res.status(200).json({ message: 'Sản phẩm đã được cập nhật', cart:populated });
+    res.status(200).json({ message: 'Sản phẩm đã được thêm vào giỏ', cart:populated });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi thêm sản phẩm vào giỏ hàng', error });
   }
@@ -131,7 +141,6 @@ router.delete('/remove', async (req, res) => {
       cart.items.splice(productIndex, 1);
       await cart.save();
 
-      // TRẢ VỀ GIỎ ĐÃ POPULATE để frontend không mất ảnh/tên/giá
       const populated = await Cart.findById(cart._id).populate('items.productId');
 
       res.status(200).json({ message: 'Sản phẩm đã được xóa khỏi giỏ hàng', cart:populated });
@@ -144,7 +153,7 @@ router.delete('/remove', async (req, res) => {
 });
 
 
-const Order = require('../models/Order'); // Đảm bảo rằng model Order đã được import
+const Order = require('../models/Order'); 
 
 router.post('/checkout', async (req, res) => {
   const { userId, deliveryAddress, paymentMethod, items, totalAmount } = req.body;
@@ -168,7 +177,7 @@ router.post('/checkout', async (req, res) => {
         quantity: item.quantity,
         unitPrice: item.unitPrice
       })),
-      orderStatus: "Pending",  // Đơn hàng sẽ ở trạng thái Pending khi tạo
+      orderStatus: "PENDING",  // Đơn hàng sẽ ở trạng thái Pending khi tạo
       paymentMethod,
       paymentStatus: "Pending", // Thanh toán chờ xử lý
       shipAddress: deliveryAddress,
@@ -176,6 +185,19 @@ router.post('/checkout', async (req, res) => {
     };
 
     const newOrder = await Order.create(orderData);
+
+    for (const item of items) {
+      const { productId, quantity } = item;
+
+      const newInteraction = new Interaction({
+        user_id: userId,           
+        product_id: productId,     
+        type: 'purchase',          
+        value: quantity,           
+      });
+
+      await newInteraction.save();  
+    }
 
     // Cập nhật trạng thái giỏ hàng thành "Completed"
     cart.status = 'Completed';

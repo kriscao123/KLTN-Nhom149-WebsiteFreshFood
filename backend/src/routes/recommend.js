@@ -1,17 +1,29 @@
 const router = require('express').Router();
-const axios = require('axios');
-const auth = require('../middleware/auth');
+const Product = require('../models/Product');
 
-const PY = process.env.PYTHON_API_URL || 'http://localhost:5001';
+// Lấy sản phẩm gợi ý từ MongoDB
+router.get('/recommend/:productId', async (req, res) => {
+  const productId = req.params.productId;
 
-router.post('/fbt', auth, async (req, res) => {
-  try {
-    const { cart_items = [], topK = 6 } = req.body;
-    const { data } = await axios.post(`${PY}/api/recommend/fbt`, { cart_items, topK }, { timeout: 10000 });
-    res.json(data);
-  } catch (e) {
-    res.status(500).json({ message: 'recommend fbt error', error: e.message });
-  }
+  // Lấy các ID sản phẩm gợi ý từ logic AI (hoặc từ cơ sở dữ liệu)
+  const recommendedIds = getRecommendedProductIds(productId); // Giả sử đây là hàm của bạn
+
+  // Truy vấn MongoDB để lấy thông tin chi tiết các sản phẩm gợi ý
+  const recommendedProducts = await Product.find({
+    '_id': { $in: recommendedIds }
+  });
+
+  // Trả về thông tin sản phẩm chi tiết
+  const productsData = recommendedProducts.map(product => ({
+    id: product._id.toString(),
+    name: product.productName,
+    price: product.unitPrice,
+    image_url: product.imageUrl,
+    description: product.description
+  }));
+
+  res.json({
+    recommended_products: productsData
+  });
 });
-
 module.exports = router;

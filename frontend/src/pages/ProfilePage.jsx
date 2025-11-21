@@ -103,18 +103,9 @@ const ProfilePage = () => {
                     });
             });
 
-            // Lặp qua các đơn hàng và thêm productId vào productIds
-            ordersData.forEach(order => {
-                if (order.orderDetails) {
-                    order.orderDetails.forEach(detail => {
-                        productIds.add(detail.productId);  // Thêm productId vào Set
-                    });
-                }
-            });
-
             // Map order details by order ID
             const detailsByOrder = ordersData.reduce((acc, order) => {
-                acc[order.orderId] = order.orderDetails || [];
+                acc[order.orderId] = order.orderItems || [];
                 return acc;
             }, {});
             setOrderDetails(detailsByOrder);
@@ -133,6 +124,7 @@ const ProfilePage = () => {
                 return acc;
             }, {});
             setProducts(productsById);
+            console.log(products)
         } catch (err) {
             console.error("Error fetching data:", err);
             if (err.response?.status === 404) {
@@ -296,18 +288,19 @@ const ProfilePage = () => {
 <body>
     <div class="invoice-header">
         <h1>HÓA ĐƠN BÁN HÀNG</h1>
-        <p>Ngày đặt hàng: ${formatDate(order.createdDate)}</p>
+        <p>Ngày đặt hàng: ${formatDate(order.orderDate)}</p>
     </div>
     <div class="invoice-info">
         <div class="invoice-info-block">
             <h4>Thông tin khách hàng</h4>
             <p><strong>Khách hàng:</strong> ${user.username}</p>
             <p><strong>Email:</strong> ${user.email}</p>
-            <p><strong>Địa chỉ giao hàng:</strong> ${order.deliveryAddress}</p>
+            <p><strong>Địa chỉ giao hàng:</strong> ${order.shipAddress.line1+order.shipAddress.ward
+            +order.shipAddress.district+order.shipAddress.province}</p>
         </div>
         <div class="invoice-info-block">
             <h4>Thông tin đơn hàng</h4>
-            <p><strong>Trạng thái đơn hàng:</strong> ${getStatusText(order.status)}</p>
+            <p><strong>Trạng thái đơn hàng:</strong> ${getStatusText(order.orderStatus)}</p>
             <p><strong>Ngày giao hàng dự kiến:</strong> ${formatDate(order.deliveryDate)}</p>
         </div>
     </div>
@@ -329,9 +322,9 @@ const ProfilePage = () => {
                         <tr>
                             <td>${index + 1}</td>
                             <td>${product.productName || "Sản phẩm không xác định"}</td>
-                            <td>${formatCurrency(detail.unitPrice+detail.unitPrice/10)}</td>
+                            <td>${formatCurrency(detail.unitPrice)}</td>
                             <td>${detail.quantity}</td>
-                            <td class="amount">${formatCurrency(detail.subtotal+detail.subtotal/10)}</td>
+                            <td class="amount">${formatCurrency(detail.unitPrice*detail.quantity)}</td>
                         </tr>
                     `;
             })
@@ -341,7 +334,7 @@ const ProfilePage = () => {
     <div class="invoice-total">
         <div class="invoice-total-row">
             <div class="label">Tổng tiền hàng:</div>
-            <div class="value">${formatCurrency(order.totalAmount+order.totalAmount/10)}</div>
+            <div class="value">${formatCurrency(order.totalAmount)}</div>
         </div>
         <div class="invoice-total-row">
             <div class="label">Phí vận chuyển:</div>
@@ -349,12 +342,12 @@ const ProfilePage = () => {
         </div>
         <div class="invoice-total-row final">
             <div class="label">Tổng thanh toán:</div>
-            <div class="value">${formatCurrency(order.totalAmount+order.totalAmount/10+30000)}</div>
+            <div class="value">${formatCurrency(order.totalAmount)}</div>
         </div>
     </div>
     <div class="invoice-footer">
         <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
-        <p>Mọi thắc mắc xin vui lòng liên hệ: support@homecraft.com | 0393465113</p>
+        <p>Mọi thắc mắc xin vui lòng liên hệ: nhanhoa.cao@gmail.com | 0827319452</p>
     </div>
     <div class="close-btn">
         <button onclick="window.close()">Đóng</button>

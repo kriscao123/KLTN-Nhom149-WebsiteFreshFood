@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const Product = require('../models/Product');  // Kiểm tra lại import
-const ProductVariant = require('../models/ProductVariant');
+const Product = require('../models/Product');
+const Interaction = require('../models/Interaction');
 
 router.post('/', async (req, res) => {
   const { productName, categoryId, isActive, reorderLevel, supplierId, unitPrice, unitWeight, unitsInStock, unitsOnOrder, imageUrl } = req.body;
@@ -88,17 +88,25 @@ router.get('/', async (req, res) => {
 // Lấy chi tiết sản phẩm theo ID
 router.get('/:id', async (req, res) => {
   try {
+    const { userId } = req.query;
+
     const prod = await Product.findById(req.params.id)
-      .select('_id productName categoryId isActive reorderLevel supplierId unitPrice unitWeight unitsInStock unitsOnOrder imageUrl salesCount listPrice')  // Chỉ lấy các trường yêu cầu
+      .select('_id productName categoryId isActive reorderLevel supplierId unitPrice unitWeight unitsInStock unitsOnOrder imageUrl salesCount listPrice description')  // Chỉ lấy các trường yêu cầu
       .lean();
     
+    if (userId) {
+      await Interaction.create({
+        user_id: userId,        
+        product_id: req.params.id,
+        type: 'view',
+        value: 1,
+      });
+    }
+
     if (!prod) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
     
-    const similarProducts = await Product.find({ categoryId: prod.categoryId, unitsInStock: { $gt: 0 } })
-      .limit(10)
-      .lean();
     
-    res.json({ ...prod, similarProducts });
+    res.json(prod);
   } catch (err) {
     res.status(500).json({ message: 'Lỗi khi lấy dữ liệu sản phẩm', error: err.message });
   }

@@ -500,7 +500,7 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width:
 
 <div class="invoice-footer">
   <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
-  <p>Mọi thắc mắc xin vui lòng liên hệ: tranngochung19112004@gmail.com | 0393465113</p>
+  <p>Mọi thắc mắc xin vui lòng liên hệ: nhanhoa.cao@gmail.com | 0827319452</p>
 </div>
 
 <div class="close-btn">

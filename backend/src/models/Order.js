@@ -11,7 +11,7 @@ const orderSchema = new mongoose.Schema({
       unitPrice: { type: Number, required: true }
     }
   ],
-  orderStatus: { type: String, enum: ['Pending', 'Completed', 'Canceled'], default: 'Pending' },
+  orderStatus: { type: String, enum: ['PENDING', 'CONFIRMED', 'SHIPPING','DELIVERED','CANCELLED'], default: 'PENDING' },
   paymentMethod: { type: String, required: true },
   paymentStatus: { type: String, enum: ['Pending', 'Completed', 'Failed'], default: 'Pending' },
   shipAddress: { type: Object, required: true }, // Địa chỉ giao hàng
