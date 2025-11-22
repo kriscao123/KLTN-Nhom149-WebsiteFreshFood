@@ -4,7 +4,7 @@ from config import Config
 
 # Kết nối MongoDB dùng chung với các model khác
 client = MongoClient(Config.MONGO_URI)
-db = client.get_default_database()
+db = client.client['FoodSalesManagement']
 
 
 class Interaction:

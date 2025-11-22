@@ -12,24 +12,19 @@ db = client.get_default_database()
 TYPE_WEIGHTS = {
     'view': 1.0,
     'add_to_cart': 3.0,
-    'purchase': 5.0,
-    'wishlist': 2.0,
-    'rating': 4.0,
-    'search': 1.0,
+    'purchase': 5.0
 }
 
 
 def _fetch_interactions():
-    """
-    Lấy toàn bộ interactions từ MongoDB và chuyển sang DataFrame:
-    cột: user_id (str), product_id (str), type, value, score
-    """
+    """Lấy toàn bộ interactions từ MongoDB và chuyển sang DataFrame"""
     cursor = db.interactions.find({
         'user_id': {'$ne': None},
         'product_id': {'$ne': None},
     })
     docs = list(cursor)
     if not docs:
+        print("No interactions data found in MongoDB.")  # Log nếu không có dữ liệu
         return pd.DataFrame()
 
     df = pd.DataFrame(docs)
@@ -50,15 +45,14 @@ def _fetch_interactions():
             return base
 
     df['score'] = df.apply(_calc_score, axis=1)
+
     return df
 
 
 def _build_user_item_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Từ DataFrame interactions => ma trận user-item:
-    hàng = user_id, cột = product_id, giá trị = tổng score
-    """
+    """Từ DataFrame interactions => ma trận user-item"""
     if df is None or df.empty:
+        print("User-Item matrix is empty.")  # Log nếu ma trận trống
         return pd.DataFrame()
 
     user_item = df.pivot_table(
@@ -68,104 +62,105 @@ def _build_user_item_matrix(df: pd.DataFrame) -> pd.DataFrame:
         aggfunc='sum',
         fill_value=0.0,
     )
+
     return user_item
 
-
 def _compute_item_similarity(user_item: pd.DataFrame) -> pd.DataFrame:
-    """
-    Tính ma trận similarity giữa các sản phẩm dựa trên vector người dùng
-    """
+    """Tính ma trận similarity giữa các sản phẩm"""
     if user_item is None or user_item.empty:
+        print("User-Item matrix is empty, cannot compute similarity.")  # Log nếu ma trận trống
         return pd.DataFrame()
 
-    # item_matrix: mỗi dòng là 1 sản phẩm, feature là các user
-    item_matrix = user_item.T  # shape: num_items x num_users
-
+    item_matrix = user_item.T  # Chuyển từ user-item matrix sang item-user matrix
     sim = cosine_similarity(item_matrix)
     item_ids = list(item_matrix.index)
     sim_df = pd.DataFrame(sim, index=item_ids, columns=item_ids)
+
     return sim_df
 
 
 def get_recommendations_for_user(user_id: str, top_n: int = 10):
-    """
-    Trả về danh sách product_id (string) gợi ý cho user_id.
-    """
+    """Trả về danh sách product_id gợi ý cho user_id."""
     interactions_df = _fetch_interactions()
     if interactions_df.empty:
+        print(f"No interactions data found for user {user_id}. Returning empty list.")
         return []
 
     user_item = _build_user_item_matrix(interactions_df)
-    if user_id not in user_item.index:
-        # User chưa có tương tác => API có thể trả rỗng, FE tự fallback
-        return []
-
+    
     sim_df = _compute_item_similarity(user_item)
-    if sim_df.empty:
-        return []
-
+    
     user_vector = user_item.loc[user_id]
-    # Các sản phẩm user đã từng tương tác (score > 0)
     interacted_items = set(user_vector[user_vector > 0].index.tolist())
-    if not interacted_items:
-        return []
 
+    # Lấy danh sách các sản phẩm chưa được tương tác
+    candidate_items = sim_df.columns.difference(interacted_items).tolist()
+   
+    
     scores = {}
-    # Duyệt qua mỗi sản phẩm mà user đã tương tác
-    for item_id in interacted_items:
-        similar_series = sim_df[item_id]  # similarity tới mọi item khác
+    for item_id in candidate_items:
+        similar_series = sim_df[item_id]
 
         for other_item_id, sim_score in similar_series.items():
-            if other_item_id in interacted_items:
-                continue  # không gợi ý lại sản phẩm user đã dùng
+        
             if sim_score <= 0:
                 continue
 
-            # Điểm gợi ý = tổng(similarity * score tương tác của user)
-            scores[other_item_id] = scores.get(other_item_id, 0.0) + (
-                sim_score * float(user_vector[item_id])
+            scores[item_id] = scores.get(item_id, 0.0) + (
+                sim_score * float(user_vector[other_item_id])
             )
-
-    if not scores:
-        return []
-
-    # Sắp xếp theo điểm giảm dần
+        
+        
     sorted_items = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     top_items = [item_id for item_id, _ in sorted_items[:top_n]]
+    
     return top_items
-
 
 def get_recommended_products_for_user(user_id: str, top_n: int = 10):
     """
     Trả về list dict thông tin sản phẩm gợi ý cho user:
-    [{ _id, productName, unitPrice, imageUrl, ... }, ...]
+    [{ 'imageUrl', 'productName', 'listPrice', 'unitPrice' }, ...]
     """
     product_ids = get_recommendations_for_user(user_id, top_n=top_n)
     if not product_ids:
         return []
 
-    # convert str -> ObjectId để query
+    # Convert str -> ObjectId để query MongoDB
     object_ids = []
     for pid in product_ids:
         try:
-            object_ids.append(ObjectId(pid))
+            object_ids.append(ObjectId(pid))  # ObjectId để query trong MongoDB
         except Exception:
             continue
 
     if not object_ids:
         return []
 
-    products_cursor = db.products.find({'_id': {'$in': object_ids}})
+    # Truy vấn sản phẩm từ MongoDB và chỉ lấy các trường cần thiết
+    products_cursor = db.products.find(
+        {'_id': {'$in': object_ids}},  # Tìm sản phẩm có _id trong danh sách
+        {'imageUrl': 1, 'productName': 1, 'listPrice': 1, 'unitPrice': 1}  # Chỉ lấy các trường cần thiết
+    )
     products = list(products_cursor)
     if not products:
         return []
 
-    # Chuyển _id sang string
-    for p in products:
-        p['_id'] = str(p['_id'])
+    # Chuyển tất cả các ObjectId thành string
+    products = convert_objectid_to_string(products)
 
     # Giữ đúng thứ tự gợi ý
     order_map = {pid: idx for idx, pid in enumerate(product_ids)}
     products.sort(key=lambda p: order_map.get(p['_id'], 1e9))
 
+    return products
+
+
+def convert_objectid_to_string(products):
+    """Chuyển đổi ObjectId thành string trong danh sách sản phẩm"""
+    for product in products:
+        product['_id'] = str(product['_id'])  # Chuyển ObjectId thành string
+        if 'categoryId' in product:
+            product['categoryId'] = str(product['categoryId'])
+        if 'supplierId' in product:
+            product['supplierId'] = str(product['supplierId'])
     return products
