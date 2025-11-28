@@ -1,6 +1,6 @@
 @import "tailwindcss";
 header {
-    position: sticky;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -34,14 +34,14 @@ section{
 .product-section {
   position: relative;
   margin-bottom: 30px;
-  overflow: hidden; /* Ẩn các phần tử ngoài vùng hiển thị */
+   overflow: hidden; 
 }
 
 .product-carousel {
   display: flex;
   flex-wrap: nowrap;
-  overflow-x: auto; /* Cho phép cuộn ngang */
-  scroll-behavior: smooth; /* Cuộn mượt mà */
+  overflow-x: auto; 
+  scroll-behavior: smooth; 
 }
 
 .product-carousel::-webkit-scrollbar {
@@ -74,3 +74,5 @@ section{
 .product-section:hover .view-more-button {
   display: block;
 }
+
+

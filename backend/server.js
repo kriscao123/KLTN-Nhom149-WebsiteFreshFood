@@ -11,6 +11,7 @@ const interactionRoutes = require('./src/routes/interactions');
 const categoryRoutes=require('./src/routes/categoryRoutes');
 const cartRoutes=require('./src/routes/cartRoutes');
 const orderRoutes=require('./src/routes/orderRoutes');
+const userRoutes=require('./src/routes/userRoutes');
 
 const app = express();
 app.use(cors({ origin: ['http://localhost:5174'], credentials: true }));
@@ -26,6 +27,14 @@ app.use('/api/interactions', interactionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
+app.use('/api/users',userRoutes);
+
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');      
+  res.setHeader('Pragma', 'no-cache');             
+  res.setHeader('Expires', '0');                   
+  next();
+});
 
 const port = process.env.PORT || 5000;
 connect().then(() => { 

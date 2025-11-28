@@ -18,7 +18,7 @@ const CartPage = () => {
     const [selectedItems, setSelectedItems] = useState(new Set())
 
     const user = getUserFromLocalStorage()
-    const userId = user?.userId || null  // Sửa lại để lấy userId thay vì email
+    const userId = user?.userId || null 
 
     const navigate = useNavigate()
 

@@ -5,7 +5,10 @@ import api from "@/services/api.js";
 import ProductCarouselSection from "@/components/ProductCarouselSection";
 import CategoryMenuGrid from "@/components/CategoryMenuGrid";
 import HeroSection from "@/components/HeroSection";
-import SidebarMenu from "@/components/SidebarMenu"; // Sidebar component
+import SidebarMenu from "@/components/SidebarMenu"; 
+import aiApi from "../services/aiApi";
+import { getUserFromLocalStorage } from "../assets/js/userData"
+import {Link} from "react-scroll"
 
 const pickArray = (data) => data?.content || data || [];
 
@@ -25,10 +28,12 @@ function HomePage() {
   // Hàm cuộn đến phần mục sản phẩm
   const scrollToCategory = (index) => {
     if (productSections.current[index]) {
-      window.scrollTo({
-        top: productSections.current[index].offsetTop, // Cuộn đến vị trí của phần sản phẩm
+      const headerHeight = document.querySelector('header')?.offsetHeight || 0; // Chiều cao header nếu có
+      productSections.current[index].scrollIntoView({
         behavior: 'smooth',
+        block: 'start',
       });
+      window.scrollBy(0, -headerHeight); // Điều chỉnh khoảng cách cuộn nếu có header cố định
     }
   };
 
@@ -36,6 +41,10 @@ function HomePage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [recommendedProducts, setRecommendedProducts] = useState([]); // State mới để lưu sản phẩm gợi ý
+
+   const user = getUserFromLocalStorage()
+    const userId = user?.userId || null 
 
   const category = [
     {
@@ -93,6 +102,13 @@ function HomePage() {
         if (!ignore) setLoading(false);
       }
     })();
+
+    const fetchRecommendedProducts = async () => {
+      const recommended = await aiApi.get(`/user-recommendations/${userId}`); // Gọi API lấy sản phẩm gợi ý
+      const recommendedData = recommended.data?.recommended_products || [];
+      setRecommendedProducts(recommendedData);
+    };
+    fetchRecommendedProducts();
     return () => {
       ignore = true;
     };
@@ -143,6 +159,7 @@ function HomePage() {
     });
 
     const list = [];
+
     categories.forEach((c) => {
       const catId = c._id || c.id || c.categoryId;
       const items = grouped.get(catId) || [];
@@ -151,6 +168,19 @@ function HomePage() {
         list.push({ id: slugify(title), title, items, catId });
       }
     });
+
+    if (recommendedProducts.length) {
+      list.unshift({
+        id: "recommended-for-you",
+        htmlId: "section-recommended-for-you",
+        title: "Dành cho bạn", 
+        items: recommendedProducts.map((product) => ({
+          ...product,
+          unitPrice: product.unitPrice ?? 0,
+          listPrice: product.listPrice ?? null,
+        })),
+      });
+    }
 
     if (promoProducts.length) {
       list.unshift({
@@ -161,7 +191,7 @@ function HomePage() {
       });
 }
 return list;
-  }, [products, categories, categoryMap]);
+  }, [products, categories, recommendedProducts]);
 
   const menuItems = useMemo(() => {
     return sections.map((sec) => {
@@ -199,6 +229,7 @@ return list;
         <HeroSection />
       </div>
 
+
       {/* SidebarMenu and CategoryMenuGrid are aligned */}
       <div className="flex flex-row bg-emerald-50/50 shadow-md">
         {/* SidebarMenu */}
@@ -208,7 +239,7 @@ return list;
 
         {/* Category Menu Grid and Products - both will have equal height */}
         <div className="homepage-container section !my-6">
-          <CategoryMenuGrid items={menuItems} scrollToCategory={scrollToCategory} />
+          <CategoryMenuGrid items={menuItems} scrollToCategory={(index) => scrollToCategory(index)} />
 
           {/* Các Mục Sản Phẩm */}
           <div className="mx-auto mt-6" id="products">

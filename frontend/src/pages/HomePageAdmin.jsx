@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import {
@@ -52,83 +50,78 @@ const HomePageAdmin = () => {
 
     // Get status background color
     const getStatusBgColor = (status) => {
-        switch (status.toLowerCase()) {
-            case "payment_success":
-                return "bg-amber-500"
-            case "confirmed":
-                return "bg-blue-500"
-            case "shipping":
-                return "bg-purple-500"
-            case "delivered":
-                return "bg-green-500"
-            case "returned":
-                return "bg-orange-500"
-            case "cancelled":
-                return "bg-rose-500"
+        switch (String(status || "UNKNOW").toUpperCase()) {
+            case "PENDING":
+            return "bg-amber-500";
+            case "CONFIRMED":
+            return "bg-blue-500";
+            case "SHIPPING":
+            return "bg-purple-500";
+            case "DELIVERED":
+            return "bg-green-500";
+            case "CANCELLED":
+            return "bg-rose-500";
             default:
-                return "bg-gray-500"
+            return "bg-gray-500";
         }
-    }
+        };
+
 
     // Get status text
     const getStatusText = (status) => {
-        switch (status.toLowerCase()) {
-            case "payment_success":
-                return "Chờ xác nhận"
-            case "confirmed":
-                return "Chờ lấy hàng"
-            case "shipping":
-                return "Chờ giao hàng"
-            case "delivered":
-                return "Đã giao"
-            case "returned":
-                return "Trả hàng"
-            case "cancelled":
-                return "Đã hủy"
+        switch (String(status || "UNKNOW").toUpperCase()) {
+            case "PENDING":
+            return "Chờ xác nhận";
+            case "CONFIRMED":
+            return "Đã xác nhận";
+            case "SHIPPING":
+            return "Đang giao";
+            case "DELIVERED":
+            return "Đã giao";
+            case "CANCELLED":
+            return "Đã hủy";
             default:
-                return "Không xác định"
+            return "Không xác định";
         }
-    }
+        };
+
 
     // Get status badge color
     const getStatusBadgeColor = (status) => {
-        switch (status.toLowerCase()) {
-            case "payment_success":
-                return "bg-amber-100 text-amber-800 border border-amber-200"
-            case "confirmed":
-                return "bg-blue-100 text-blue-800 border border-blue-200"
-            case "shipping":
-                return "bg-purple-100 text-purple-800 border border-purple-200"
-            case "delivered":
-                return "bg-green-100 text-green-800 border border-green-200"
-            case "returned":
-                return "bg-orange-100 text-orange-800 border border-orange-200"
-            case "cancelled":
-                return "bg-rose-100 text-rose-800 border border-rose-200"
+        switch (String(status || "UNKNOW").toUpperCase()) {
+            case "PENDING":
+            return "bg-amber-100 text-amber-800 border border-amber-200";
+            case "CONFIRMED":
+            return "bg-blue-100 text-blue-800 border border-blue-200";
+            case "SHIPPING":
+            return "bg-purple-100 text-purple-800 border border-purple-200";
+            case "DELIVERED":
+            return "bg-green-100 text-green-800 border border-green-200";
+            case "CANCELLED":
+            return "bg-rose-100 text-rose-800 border border-rose-200";
             default:
-                return "bg-gray-100 text-gray-800 border border-gray-200"
+            return "bg-gray-100 text-gray-800 border border-gray-200";
         }
-    }
+        };
+
 
     // Get status icon
     const getStatusIcon = (status) => {
-        switch (status.toLowerCase()) {
-            case "payment_success":
-                return <Clock className="h-4 w-4" />
-            case "confirmed":
-                return <PackageCheck className="h-4 w-4" />
-            case "shipping":
-                return <Truck className="h-4 w-4" />
-            case "delivered":
-                return <Package className="h-4 w-4" />
-            case "returned":
-                return <PackageX className="h-4 w-4" />
-            case "cancelled":
-                return <XCircle className="h-4 w-4" />
+        switch (String(status || "UNKNOW").toUpperCase()) {
+            case "PENDING":
+            return <Clock className="h-4 w-4" />;
+            case "CONFIRMED":
+            return <PackageCheck className="h-4 w-4" />;
+            case "SHIPPING":
+            return <Truck className="h-4 w-4" />;
+            case "DELIVERED":
+            return <Package className="h-4 w-4" />;
+            case "CANCELLED":
+            return <XCircle className="h-4 w-4" />;
             default:
-                return <AlertTriangle className="h-4 w-4" />
+            return <HelpCircle className="h-4 w-4" />;
         }
-    }
+        };
 
     // Format date
     const formatDate = (dateString) => {
@@ -151,6 +144,54 @@ const HomePageAdmin = () => {
         return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
     }
 
+    
+    const normalizeShipAddress = (addr) => {
+    if (!addr) return "";
+    if (typeof addr === "string") return addr;
+
+    const parts = [];
+    const push = (v) => {
+        if (v === undefined || v === null) return;
+        const s = String(v).trim();
+        if (s) parts.push(s);
+    };
+
+    push(addr.street);
+    push(addr.ward);
+    push(addr.district);
+    push(addr.city);
+    push(addr.province);
+    push(addr.country);
+
+    if (!parts.length) {
+        Object.values(addr).forEach((v) => {
+        if (typeof v === "string" || typeof v === "number") push(v);
+        });
+    }
+
+    return parts.join(", ");
+    };
+
+    const normalizeOrdersForAdminUI = (rawOrders = []) => {
+    return rawOrders.map((o) => ({
+        orderId: o.orderId || o._id, 
+        userId: o.userId || o.customerId, 
+        deliveryAddress: o.deliveryAddress || normalizeShipAddress(o.shipAddress),
+        deliveryDate: o.deliveryDate || o.orderDate,
+        status: o.status || o.orderStatus, 
+        totalAmount: o.totalAmount || 0,
+        orderDetails:
+        o.orderDetails ||
+        (Array.isArray(o.orderItems)
+            ? o.orderItems.map((it) => ({
+                productId: it.productId,
+                quantity: it.quantity || 0,
+            }))
+            : []),
+    }));
+};
+
+
     // Fetch data
     useEffect(() => {
         const fetchData = async () => {
@@ -159,7 +200,7 @@ const HomePageAdmin = () => {
 
                 // Fetch orders
                 console.log(`Fetching orders with page=${currentPage}&size=${ordersPerPage}`)
-                const orderResponse = await api.get(`/orders?page=${currentPage}&size=${ordersPerPage}`)
+                const orderResponse = await api.get(`/order?page=${currentPage}&size=${ordersPerPage}`)
                 console.log("Order response:", orderResponse)
 
                 let orderData = []
@@ -169,11 +210,11 @@ const HomePageAdmin = () => {
 
                 // Check API response
                 if (orderResponse.status === 200 && orderResponse.data) {
-                    if (Array.isArray(orderResponse.data)) {
+                    if (Array.isArray(orderResponse.data&&orderResponse.data?.content)) {
                         // Backend returns List<OrderResponse>
-                        orderData = orderResponse.data
+                        orderData = orderResponse.data.content
                         totalPages = Math.ceil(orderResponse.data.length / ordersPerPage)
-                        totalElements = orderResponse.data.length
+                        totalElements = orderResponse.data.content.length
                     } else if (orderResponse.data.content) {
                         // Backend returns paginated object
                         orderData = orderResponse.data.content
@@ -183,10 +224,15 @@ const HomePageAdmin = () => {
                         console.warn("Unexpected order response format:", orderResponse.data)
                     }
 
-                    setOrders(orderData)
-                    setTotalPages(totalPages)
-                    // Calculate revenue from orderData
-                    revenue = orderData.reduce((sum, order) => sum + (order.totalAmount || 0), 0)
+                   const normalizedOrders = normalizeOrdersForAdminUI(orderData);
+
+                    setOrders(normalizedOrders);
+                    console.log("Normalized orders:", normalizedOrders);
+                    setTotalPages(totalPages);
+
+                    // Calculate revenue from normalizedOrders
+                    revenue = normalizedOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+                    console.log("Calculated revenue:", revenue);
                 } else {
                     console.warn("No valid order data, status:", orderResponse.status)
                     setOrders([])
@@ -197,8 +243,8 @@ const HomePageAdmin = () => {
                 console.log("Fetching products")
                 const productResponse = await api.get(`/products?page=0&size=1000`)
                 console.log("Product response:", productResponse)
-                if (productResponse.status === 200 && productResponse.data && productResponse.data.content) {
-                    setProducts(productResponse.data.content)
+                if (productResponse.status === 200 && productResponse.data) {
+                    setProducts(productResponse.data)
                 } else {
                     console.warn("No valid product data, status:", productResponse.status)
                     setProducts([])
@@ -257,7 +303,7 @@ const HomePageAdmin = () => {
         .map((product) => {
             const totalSold = orders
                 .flatMap((order) => order.orderDetails || [])
-                .filter((detail) => detail.productId === product.productId)
+                .filter((detail) => detail.productId === product._id)
                 .reduce((sum, detail) => sum + detail.quantity, 0)
             return {
                 ...product,
@@ -319,22 +365,22 @@ const HomePageAdmin = () => {
                 data: orders.reduce(
                     (acc, order) => {
                         switch (order.status.toLowerCase()) {
-                            case "payment_success":
+                            case "PENDING":
                                 acc[0]++
                                 break
-                            case "confirmed":
+                            case "CONFIRMED":
                                 acc[1]++
                                 break
-                            case "shipping":
+                            case "SHIPPING":
                                 acc[2]++
                                 break
-                            case "delivered":
+                            case "DELIVERED":
                                 acc[3]++
                                 break
                             case "returned":
                                 acc[4]++
                                 break
-                            case "cancelled":
+                            case "CANCELLED":
                                 acc[5]++
                                 break
                             default:
@@ -572,7 +618,7 @@ const HomePageAdmin = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
                             {filteredOrders.map((order) => {
-                                const customer = users.find((u) => u.email === order.userId)
+                                const customer = users.find((u) => u.userId === order.userId)
                                 return (
                                     <tr key={order.orderId} className="hover:bg-gray-50">
 
@@ -683,7 +729,7 @@ const HomePageAdmin = () => {
                                         <p className="text-xs text-gray-500">{product.categoryId}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-medium">{formatCurrency(product.originalPrice)}</p>
+                                        <p className="text-sm font-medium">{formatCurrency(product.unitPrice)}</p>
                                         <p className="text-xs text-gray-500">{product.sold} đã bán</p>
                                     </div>
                                 </div>

@@ -27,6 +27,7 @@ import CustomerAdminPage from "@/pages/CustomerAdminPage.jsx";
 import Statistical from "@/pages/Statistical.jsx"
 import Transport from "@/pages/Transport.jsx"
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage.jsx";
+import ScrollToTop from 'react-scroll-to-top';
 
 export default function App() {
     const [currentProduct, setCurrentProduct] = useState(null);
@@ -37,6 +38,7 @@ export default function App() {
 
     useEffect(() => {
         setupDarkMode();
+        window.scrollTo(0, 0);
 
         const updateTotalItems = () => {
             const cart = getCart();
@@ -69,7 +71,9 @@ export default function App() {
     // Component bảo vệ route cho Admin
     const AdminRoute = ({ element }) => {
         const user = getUserFromLocalStorage();
-        if (!user || user.role !== "ADMIN") {
+        console.log("role:",user.role);
+        
+        if (!user || user.role !== "Admin") {
             return <Navigate to="/login" replace />;
         }
         return element;
@@ -98,6 +102,7 @@ export default function App() {
     return (
         <div className="bg-green-50 dark:bg-gray-900 min-h-screen">
             <Router>
+                <ScrollToTop smooth />
                 <Routes>
                     {/* Các route công khai với UserLayout */}
                     <Route element={<UserLayout onCartClick={toggleCart} totalItems={totalItems} />}>
@@ -111,7 +116,7 @@ export default function App() {
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/cart" element={<ProtectedRoute element={<CartPage />} allowedRoles={["Customer"]} />} />
                         <Route path="/checkout" element={<ProtectedRoute element={<CheckoutPage />} allowedRoles={["Customer"]} />} />
-                        <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} allowedRoles={["Customer"]} />} />
+                        <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} allowedRoles={["Customer","Admin"]} />} />
                     </Route>
 
                     {/* Route cho admin với AdminLayout */}

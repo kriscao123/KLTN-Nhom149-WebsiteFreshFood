@@ -7,6 +7,7 @@ import aiApi from "../services/aiApi.js";
 import { ArrowLeft, ChevronRight, Minus, Plus, ShoppingCart, CheckCircle, AlertTriangle, X } from "lucide-react";
 import { getUserFromLocalStorage } from "../assets/js/userData";
 
+
 const ProductDetailPage = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);

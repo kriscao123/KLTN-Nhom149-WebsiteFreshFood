@@ -25,7 +25,7 @@ export default function AdminLayout() {
     // Validate admin user
     useEffect(() => {
         const storedUser = getUserFromLocalStorage()
-        if (!storedUser || storedUser.role !== "ADMIN") {
+        if (!storedUser || storedUser.role !== "Admin") {
             setError("Bạn không có quyền truy cập. Vui lòng đăng nhập với tài khoản quản lý.")
             navigate("/login")
             return

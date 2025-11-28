@@ -129,10 +129,6 @@ const Header = () => {
         setIsLogoutModalOpen(true)
     }
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen)
-    }
-
     const toggleUserMenu = () => {
         setIsUserMenuOpen(!isUserMenuOpen)
     }

@@ -2,7 +2,6 @@
 
 body {
     font-family: 'Roboto', sans-serif;
-    scroll-behavior: smooth;
 }
 
 .product-card {
@@ -56,3 +55,4 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
     -moz-appearance: textfield;
 }
+

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BarChart3, HelpCircle, Layers, LayoutDashboard, LogOut, Package, Settings, ShoppingBag, Truck, Users, X } from 'lucide-react';
 import { getUserFromLocalStorage } from "../assets/js/userData";
-import api from "../services/api";
 
 const MenuAdmin = ({ user: propUser, isSidebarOpen, toggleSidebar, handleLogout }) => {
     const [activeLink, setActiveLink] = useState("/admin");
@@ -58,7 +57,7 @@ const MenuAdmin = ({ user: propUser, isSidebarOpen, toggleSidebar, handleLogout 
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                             <Layers className="h-5 w-5" />
                         </div>
-                        <span className="text-lg font-bold">HomeCraft Admin</span>
+                        <span className="text-lg font-bold">NHFood Admin</span>
                     </div>
                     <button
                         onClick={toggleSidebar}
