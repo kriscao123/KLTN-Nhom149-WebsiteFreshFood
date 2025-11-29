@@ -196,13 +196,13 @@ const HomePageAdmin = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                
+
                 setIsLoading(true)
 
                 // Fetch orders
-                console.log(`Fetching orders with page=${currentPage}&size=${ordersPerPage}`)
                 const orderResponse = await api.get(`/order?page=${currentPage}&size=${ordersPerPage}`)
-                console.log("Order response:", orderResponse)
-
+                
                 let orderData = []
                 let totalPages = 1
                 let revenue = 0
@@ -210,39 +210,37 @@ const HomePageAdmin = () => {
 
                 // Check API response
                 if (orderResponse.status === 200 && orderResponse.data) {
-                    if (Array.isArray(orderResponse.data&&orderResponse.data?.content)) {
-                        // Backend returns List<OrderResponse>
-                        orderData = orderResponse.data.content
-                        totalPages = Math.ceil(orderResponse.data.length / ordersPerPage)
-                        totalElements = orderResponse.data.content.length
-                    } else if (orderResponse.data.content) {
-                        // Backend returns paginated object
-                        orderData = orderResponse.data.content
-                        totalPages = orderResponse.data.totalPages || 1
-                        totalElements = orderResponse.data.totalElements || 0
-                    } else {
-                        console.warn("Unexpected order response format:", orderResponse.data)
+                    if (Array.isArray(orderResponse.data)) {
+                        orderData = orderResponse.data;
+                        totalPages = Math.ceil(orderData.length / ordersPerPage);
+                        totalElements = orderData.length;
+                    }
+
+                    else if (Array.isArray(orderResponse.data.content)) {
+                        orderData = orderResponse.data.content;
+                        totalPages = orderResponse.data.totalPages || 1;
+                        totalElements = orderResponse.data.totalElements || orderData.length;
+                    }
+
+                    else {
+                        console.warn("Unexpected API format:", orderResponse.data);
                     }
 
                    const normalizedOrders = normalizeOrdersForAdminUI(orderData);
 
                     setOrders(normalizedOrders);
-                    console.log("Normalized orders:", normalizedOrders);
                     setTotalPages(totalPages);
 
                     // Calculate revenue from normalizedOrders
                     revenue = normalizedOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
-                    console.log("Calculated revenue:", revenue);
-                } else {
+                    } else {
                     console.warn("No valid order data, status:", orderResponse.status)
                     setOrders([])
                     setTotalPages(1)
                 }
 
                 // Fetch products
-                console.log("Fetching products")
                 const productResponse = await api.get(`/products?page=0&size=1000`)
-                console.log("Product response:", productResponse)
                 if (productResponse.status === 200 && productResponse.data) {
                     setProducts(productResponse.data)
                 } else {
@@ -251,9 +249,7 @@ const HomePageAdmin = () => {
                 }
 
                 // Fetch users
-                console.log("Fetching users")
                 const userResponse = await api.get(`/users`)
-                console.log("User response:", userResponse)
                 if (userResponse.status === 200 && Array.isArray(userResponse.data)) {
                     setUsers(userResponse.data)
                     const nonAdminUsers = userResponse.data.filter(u => u.role.toUpperCase() !== "ADMIN")
@@ -313,50 +309,70 @@ const HomePageAdmin = () => {
         .sort((a, b) => b.sold - a.sold)
         .slice(0, 4)
 
-    // Export report as CSV
+   
     const exportReport = () => {
-        const csvContent = [
-            ["Mã đơn hàng", "Khách hàng", "Ngày đặt", "Tổng tiền", "Trạng thái"],
-            ...orders.map((order) => {
-                const user = users.find((u) => u.userId === order.userId)
-                return [
-                    order.orderId,
-                    user ? user.username : "Unknown User",
-                    formatDate(order.deliveryDate),
-                    formatCurrency(order.totalAmount),
-                    getStatusText(order.status),
-                ]
-            }),
-        ]
-            .map((row) => row.join(","))
-            .join("\n")
+        const SEP = ";";
 
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-        const link = document.createElement("a")
-        link.href = URL.createObjectURL(blob)
-        link.download = `orders_report_${new Date().toISOString().split("T")[0]}.csv`
-        link.click()
-    }
+        const esc = (v) => {
+            const s = v === null || v === undefined ? "" : String(v);
+            const cleaned = s.replace(/\r?\n/g, " ").replace(/"/g, '""');
+            return `"${cleaned}"`;
+        };
+
+        const header = ["Mã đơn hàng", "Khách hàng", "Email", "Ngày đặt", "Tổng tiền (VND)", "Trạng thái"];
+
+        const rows = orders.map((order) => {
+            const user = users.find((u) => (u.userId || u._id) === order.userId);
+
+            const customerName = user?.username || user?.name || "Unknown User";
+            const email = user?.email || ""; 
+            const date = formatDate(order.deliveryDate);
+            const total = Number(order.totalAmount) || 0; 
+            const status = getStatusText(order.status);
+
+            return [order.orderId, customerName, email, date, total, status];
+        });
+
+        // Dòng "sep=;" giúp Excel dùng đúng delimiter, không tách theo dấu .
+        const csvLines = [
+            `sep=${SEP}`,
+            header.map(esc).join(SEP),
+            ...rows.map((r) => r.map(esc).join(SEP)),
+        ];
+
+        // BOM UTF-8 để không lỗi tiếng Việt
+        const csv = "\ufeff" + csvLines.join("\r\n");
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `orders_report_${new Date().toISOString().split("T")[0]}.csv`;
+        link.click();
+    };
+
 
     // Chart data
     const salesChartData = {
-        labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5"],
+        labels: ["Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
         datasets: [
             {
                 label: "Doanh thu (VND)",
                 data: orders
                     .reduce((acc, order) => {
-                        const month = new Date(order.deliveryDate).getMonth()
-                        acc[month] = (acc[month] || 0) + (order.totalAmount+order.totalAmount/10 || 0)
-                        return acc
-                    }, Array(5).fill(0))
-                    .slice(0, 5),
+                        const month = new Date(order.deliveryDate).getMonth();  
+                        if (month >= 0 && month <= 11) { 
+                            acc[month+1] = (acc[month+1] || 0) + (order.totalAmount + order.totalAmount / 10 || 0);
+                        }
+                        return acc;
+                    }, Array(12).fill(0))  
+                    .slice(6, 12), 
                 backgroundColor: "rgba(59, 130, 246, 0.5)",
                 borderColor: "rgb(59, 130, 246)",
                 borderWidth: 1,
             },
         ],
-    }
+    };
+
 
     const orderStatusChartData = {
         labels: ["Chờ xác nhận", "Chờ lấy hàng", "Chờ giao hàng", "Đã giao", "Trả hàng", "Đã hủy"],
@@ -364,7 +380,7 @@ const HomePageAdmin = () => {
             {
                 data: orders.reduce(
                     (acc, order) => {
-                        switch (order.status.toLowerCase()) {
+                        switch (order.status.toUpperCase()) {
                             case "PENDING":
                                 acc[0]++
                                 break
@@ -522,7 +538,7 @@ const HomePageAdmin = () => {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-500">Doanh thu</p>
-                            <p className="text-3xl font-bold">{formatCurrency(stats.revenue+stats.revenue/10)}</p>
+                            <p className="text-3xl font-bold">{formatCurrency(stats.revenue)}</p>
                         </div>
                     </div>
                 </div>
@@ -632,7 +648,7 @@ const HomePageAdmin = () => {
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4">
                                             <div className="text-sm font-medium text-gray-900">
-                                                {formatCurrency(order.totalAmount+order.totalAmount/10)}
+                                                {formatCurrency(order.totalAmount)}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -718,7 +734,7 @@ const HomePageAdmin = () => {
                         </div>
                         <div className="divide-y">
                             {topSellingProducts.map((product) => (
-                                <div key={product.productId} className="flex items-center gap-4 px-4 py-3">
+                                <div key={product._id} className="flex items-center gap-4 px-4 py-3">
                                     <img
                                         src={product.imageUrl || "/placeholder.svg"}
                                         alt={product.productName}
