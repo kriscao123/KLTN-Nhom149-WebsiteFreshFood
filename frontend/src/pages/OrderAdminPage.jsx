@@ -79,7 +79,7 @@ export default function OrdersAdminPage() {
             console.log("Processed products data:", productsData)
 
             // Fetch orders
-            const ordersResponse = await api.get("/orders")
+            const ordersResponse = await api.get("/order")
             const ordersData = Array.isArray(ordersResponse.data) ? ordersResponse.data : []
             console.log("Orders data:", ordersData)
 

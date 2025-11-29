@@ -50,7 +50,7 @@ export default function CustomerPage() {
             const usersData = Array.isArray(response.data) ? response.data : [];
             console.log("Dữ liệu API thô:", usersData);
             console.log("Các vai trò:", usersData.map(user => user.role || "Không có role"));
-            const filteredCustomers = usersData.filter((user) => user.role === "CUSTOMER");
+            const filteredCustomers = usersData.filter((user) => user.role === "Customer");
             console.log("Khách hàng đã lọc:", filteredCustomers);
             setCustomers(filteredCustomers);
         } catch (err) {
@@ -232,7 +232,7 @@ export default function CustomerPage() {
                                         <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">{formatPhoneNumber(customer.phone) || "N/A"}</td>
                                         <td className="px-6 py-5 whitespace-nowrap">
                                                 <span className="inline-flex rounded-full px-3 py-1 text-xs font-semibold bg-green-100 text-green-800">
-                                                    {customer.address || "N/A"}
+                                                    {customer.address.street +customer.address.district+customer.address.ward+customer.address.city|| "N/A"}
                                                 </span>
                                         </td>
                                     </tr>

@@ -20,7 +20,9 @@ router.get('/', async (req, res) => {
       username: u.username,
       email: u.email,
       roleId: u.roleId ? String(u.roleId._id) : null,
-      role: u.roleId?.roleName || 'USER',   // <- FE dùng field này
+      role: u.roleId?.roleName || 'USER',   // <- FE dùng field này,
+      phone: u.phone || '',
+      address: u.address || ''
     }));
 
     res.json(mapped);

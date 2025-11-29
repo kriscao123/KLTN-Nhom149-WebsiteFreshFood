@@ -19,6 +19,7 @@ import {
     XCircle,
     PackageCheck,
     PackageX,
+    HelpCircle
 } from "lucide-react"
 import { Bar, Pie } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js"
@@ -41,31 +42,6 @@ const HomePageAdmin = () => {
     const [currentPage, setCurrentPage] = useState(0) // Backend uses 0-based paging
     const [totalPages, setTotalPages] = useState(1)
     const ordersPerPage = 5
-
-    // Show notification
-    const showNotification = (type, message) => {
-        setNotification({ type, message })
-        setTimeout(() => setNotification(null), 3000)
-    }
-
-    // Get status background color
-    const getStatusBgColor = (status) => {
-        switch (String(status || "UNKNOW").toUpperCase()) {
-            case "PENDING":
-            return "bg-amber-500";
-            case "CONFIRMED":
-            return "bg-blue-500";
-            case "SHIPPING":
-            return "bg-purple-500";
-            case "DELIVERED":
-            return "bg-green-500";
-            case "CANCELLED":
-            return "bg-rose-500";
-            default:
-            return "bg-gray-500";
-        }
-        };
-
 
     // Get status text
     const getStatusText = (status) => {

@@ -44,7 +44,7 @@ export default function ProductsAdminPage() {
 
     const fetchCategories = async () => {
         try {
-            const response = await api.get("/products/categories")
+            const response = await api.get("/products")
             setCategories(response.data)
         } catch (err) {
             console.error("Lỗi khi tải danh mục:", err)

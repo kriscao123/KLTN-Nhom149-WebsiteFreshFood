@@ -121,16 +121,7 @@ const MenuAdmin = ({ user: propUser, isSidebarOpen, toggleSidebar, handleLogout 
                             <Users className="h-5 w-5" />
                             <span>Khách hàng</span>
                         </Link>
-                        <Link
-                            to="/admin/shipping"
-                            className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium ${
-                                activeLink === "/admin/shipping" ? "bg-blue-100 text-blue-600" : "text-gray-700 hover:bg-gray-100"
-                            }`}
-                            onClick={() => setActiveLink("/admin/shipping")}
-                        >
-                            <Truck className="h-5 w-5" />
-                            <span>Vận chuyển</span>
-                        </Link>
+                        
                         <p className="mt-6 px-3 text-xs font-semibold uppercase text-gray-500">Cài đặt</p>
                         <Link
                             to="/admin/settings"
