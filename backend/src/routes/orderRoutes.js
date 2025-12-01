@@ -11,15 +11,20 @@ router.get("/", async (req, res) => {
 
     const totalElements = await Order.countDocuments({});
     const totalPages = Math.max(1, Math.ceil(totalElements / size));
+    let orders=[]
 
-    const orders = await Order.find({})
-      .sort({ orderDate: -1, _id: -1 })
-      .skip(page * size)
-      .limit(size)
-      .lean();
-
-    // Trả “bình thường”: giữ nguyên orderStatus = PENDING/CONFIRMED/...
-    // Convert ObjectId -> string để frontend dùng filter/compare dễ hơn
+    if(page==0&&size==10){
+      orders = await Order.find({})
+        .sort({ orderDate: -1, _id: -1 })
+        .lean();
+    }
+    else {
+      orders = await Order.find({})
+        .sort({ orderDate: -1, _id: -1 })
+        .skip(page * size)
+        .limit(size)
+        .lean();
+    }
     const content = orders.map((o) => ({
       ...o,
       _id: String(o._id),

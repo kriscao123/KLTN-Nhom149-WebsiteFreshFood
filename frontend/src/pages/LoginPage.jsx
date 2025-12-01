@@ -45,28 +45,30 @@ const LoginPage = () => {
         setIsLoading(true);
 
         try {
-  // Đăng nhập bằng email (hoặc thay bằng phone_number nếu dùng SĐT)
-  const response = await api.post("/auth/login", { email, password});
+            // Đăng nhập bằng email (hoặc thay bằng phone_number nếu dùng SĐT)
+            const response = await api.post("/auth/login", { email, password});
 
-  const { token, profile } = response.data || {};
-  if (token) localStorage.setItem("token", token);
+            const { token, profile } = response.data || {};
+            if (token) localStorage.setItem("token", token);
 
-   const roleResponse = await api.get(`/auth/get-role/${profile?.roleId}`);
-    const roleName = roleResponse.data.roleName || "CUSTOMER"; // Gán mặc định nếu không lấy được roleName
+            const roleResponse = await api.get(`/auth/get-role/${profile?.roleId}`);
+            const roleName = roleResponse.data.roleName || "CUSTOMER"; 
 
 
-  const user = {
-    userId: profile?.id,
-    username: profile?.name || (profile?.email ? profile.email.split("@")[0] : "user"),
-    email: profile?.email || null,
-    phone: profile?.phone || null,
-    address: profile?.address || null,
-    role: roleName, // backend chưa có role → gán mặc định để App.jsx hoạt động
-  };
+            const user = {
+                userId: profile?.id,
+                username: profile?.name || (profile?.email ? profile.email.split("@")[0] : "user"),
+                email: profile?.email || null,
+                phone: profile?.phone || null,
+                address: profile?.address || null,
+                role: roleName, 
+            };
 
-  saveUserToLocalStorage(user)
-
-  navigate("/");
+            saveUserToLocalStorage(user)
+            if(roleName === "Admin")
+                navigate("/admin");
+            else 
+                navigate("/");
         } catch (error) {
             setErrors({
                 email: error.response?.data?.message || "Thông tin đăng nhập không chính xác",

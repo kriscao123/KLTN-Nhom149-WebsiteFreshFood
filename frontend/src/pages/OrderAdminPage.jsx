@@ -80,41 +80,49 @@ export default function OrdersAdminPage() {
 
             // Fetch orders
             const ordersResponse = await api.get("/order")
-            const ordersData = Array.isArray(ordersResponse.data) ? ordersResponse.data : []
+            const ordersData = Array.isArray(ordersResponse.data.content) ? ordersResponse.data.content : []
             console.log("Orders data:", ordersData)
 
             // Process orders
             const processedOrders = ordersData.map((order) => {
-                const user = usersData.find((u) => u.email === order.userId) || {
+                const user = usersData.find((u) => u.userId === order.customerId) || {
                     username: "Không xác định",
                     email: "N/A",
-                }
-                const details = order.orderDetails?.map((detail) => {
+                };
+
+                const details = order.orderItems?.map((detail) => {
                     const product = Array.isArray(productsData)
-                        ? productsData.find((p) => p.productId.toString() === detail.productId.toString()) || null
-                        : null
+                    ? productsData.find((p) => String(p._id) === String(detail.productId)) || null
+                    : null;
+
                     return {
-                        ...detail,
-                        productName: product ? product.productName : `Sản phẩm #${detail.productId}`,
-                        productImage: product ? product.imageUrl : null,
-                        productPrice: product ? product.salePrice : detail.unitPrice,
-                    }
-                }) || []
+                    ...detail,
+                    productName: product ? product.productName : `Sản phẩm #${detail.productId}`,
+                    productImage: product ? product.imageUrl : null,
+                    productPrice: product ? product.salePrice : detail.unitPrice,
+                    };
+                }) || [];
+
+                const deliveryDate = addDaysISO(order.orderDate, 3);
 
                 return {
                     ...order,
+                    deliveryDate,
+                    orderDate: order.orderDate, 
                     userFullName: user.username,
                     userEmail: user.email,
+                    userAddress: user.address,
                     details,
-                }
-            })
+                };
+            });
+
 
             // Calculate stats
             const statsData = {
                 total: processedOrders.length,
-                paymentSuccess: processedOrders.filter((o) => o.status === "PAYMENT_SUCCESS").length,
+                paymentSuccess: processedOrders.filter((o) => o.orderStatus === "PENDING").length,
                 revenue: processedOrders
-                    .filter((o) => o.status === "PAYMENT_SUCCESS")
+                    .filter((o) => o.orderStatus === "PENDING")
                     .reduce((sum, order) => sum + Number(order.totalAmount), 0),
             }
 
@@ -141,8 +149,31 @@ export default function OrdersAdminPage() {
         fetchData()
     }, [])
 
+    const addDaysISO = (dateStr, days) => {
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  const x = new Date(d);
+  x.setDate(x.getDate() + days);
+  return x.toISOString();
+};
+
+const parseDDMMYYYY = (s) => {
+  const [dd, mm, yy] = String(s || "").trim().split("/");
+  if (!dd || !mm || !yy) return null;
+  const d = new Date(Number(yy), Number(mm) - 1, Number(dd)); // local time
+  return Number.isNaN(d.getTime()) ? null : d;
+};
+
+const sameLocalDay = (a, b) =>
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();
+
+    
+
     const handleSelectOrder = (order) => {
         setSelectedOrder(order)
+        console.log("Selected order:", order)
     }
 
     const handleSelectCard = (cardType) => {
@@ -152,27 +183,22 @@ export default function OrdersAdminPage() {
 
     const filteredOrders = orders.filter((order) => {
         const matchesSearch =
-            order.userFullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase())
+            order.userFullName.toLowerCase().includes(searchQuery.toLowerCase())
+            // order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase())
 
         const matchesDate = dateFilter
             ? (() => {
-                try {
-                    const [day, month, year] = dateFilter.split("/")
-                    const filterDate = new Date(`${year}-${month}-${day}`)
-                    const orderDate = new Date(order.deliveryDate)
-                    return (
-                        filterDate.getFullYear() === orderDate.getFullYear() &&
-                        filterDate.getMonth() === orderDate.getMonth() &&
-                        filterDate.getDate() === orderDate.getDate()
-                    )
-                } catch {
-                    return true
-                }
-            })()
-            : true
+                const filterDate = parseDDMMYYYY(dateFilter);
+                if (!filterDate) return true;
 
-        const matchesStatus = statusFilter ? order.status === statusFilter : true
+                const delivery = new Date(order.deliveryDate);
+                if (Number.isNaN(delivery.getTime())) return false;
+
+                return sameLocalDay(delivery, filterDate);
+                })()
+            : true;
+
+        const matchesStatus = statusFilter ? order.orderStatus === statusFilter : true
 
         return matchesSearch && matchesDate && matchesStatus
     })
@@ -184,23 +210,23 @@ export default function OrdersAdminPage() {
                     return true
                 case "revenue":
                 case "paymentSuccess":
-                    return order.status === "PAYMENT_SUCCESS"
+                    return order.orderStatus === "PENDING"
                 default:
-                    return order.status === selectedCard
+                    return order.orderStatus === selectedCard
             }
         })
         : filteredOrders
 
     const sortedOrders = [...cardFilteredOrders].sort((a, b) => {
         if (!selectedCard) {
-            if (a.status === "PAYMENT_SUCCESS" && b.status !== "PAYMENT_SUCCESS") return -1
-            if (a.status !== "PAYMENT_SUCCESS" && b.status === "PAYMENT_SUCCESS") return 1
+            if (a.status === "PENDING" && b.status !== "PENDING") return -1
+            if (a.status !== "PENDING" && b.status === "PENDING") return 1
             if (a._id !== b._id) {
                 return sortConfig.direction === "asc"
                     ? a._id.toString().localeCompare(b._id.toString())
                     : b._id.toString().localeCompare(a._id.toString())
             }
-            return new Date(b.deliveryDate) - new Date(a.deliveryDate)
+            return new Date(b.orderDate) - new Date(a.orderDate)
         }
 
         if (sortConfig.key === "totalAmount") {
@@ -229,6 +255,7 @@ export default function OrdersAdminPage() {
         return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
     }
 
+
     const formatDate = (dateString) => {
         if (!dateString) return "Không xác định"
         const date = new Date(dateString)
@@ -238,40 +265,81 @@ export default function OrdersAdminPage() {
     }
 
     const getStatusBadgeColor = (status) => {
-        switch (status) {
-            case "PAYMENT_SUCCESS":
-                return "bg-emerald-100 text-emerald-800 border border-emerald-200"
-            default:
-                return "bg-gray-100 text-gray-800 border border-gray-200"
-        }
-    }
+  switch (String(status || "").toUpperCase()) {
+    case "PENDING":
+      return "bg-amber-100 text-amber-800 border border-amber-200";
+    case "CONFIRMED":
+      return "bg-blue-100 text-blue-800 border border-blue-200";
+    case "SHIPPING":
+      return "bg-purple-100 text-purple-800 border border-purple-200";
+    case "DELIVERED":
+      return "bg-green-100 text-green-800 border border-green-200";
+    case "CANCELLED":
+      return "bg-rose-100 text-rose-800 border border-rose-200";
+    case "PAYMENT_SUCCESS":
+      return "bg-emerald-100 text-emerald-800 border border-emerald-200";
+    default:
+      return "bg-gray-100 text-gray-800 border border-gray-200";
+  }
+};
 
     const getStatusBgColor = (status) => {
-        switch (status) {
-            case "PAYMENT_SUCCESS":
-                return "bg-emerald-500"
-            default:
-                return "bg-gray-500"
-        }
-    }
+  switch (String(status || "").toUpperCase()) {
+    case "PENDING":
+      return "bg-amber-500";
+    case "CONFIRMED":
+      return "bg-blue-500";
+    case "SHIPPING":
+      return "bg-purple-500";
+    case "DELIVERED":
+      return "bg-green-500";
+    case "CANCELLED":
+      return "bg-rose-500";
+    case "PAYMENT_SUCCESS":
+      return "bg-emerald-500";
+    default:
+      return "bg-gray-500";
+  }
+};
+
 
     const getStatusText = (status) => {
-        switch (status) {
-            case "PAYMENT_SUCCESS":
-                return "Thanh toán thành công"
-            default:
-                return "Không xác định"
-        }
-    }
+  switch (String(status || "").toUpperCase()) {
+    case "PENDING":
+      return "Chờ xác nhận";
+    case "CONFIRMED":
+      return "Đã xác nhận";
+    case "SHIPPING":
+      return "Đang giao";
+    case "DELIVERED":
+      return "Đã giao";
+    case "CANCELLED":
+      return "Đã hủy";
+    case "PAYMENT_SUCCESS":
+      return "Thanh toán thành công";
+    default:
+      return "Không xác định";
+  }
+};
 
     const getStatusIcon = (status) => {
-        switch (status) {
-            case "PAYMENT_SUCCESS":
-                return <CheckCircle className="h-4 w-4" />
-            default:
-                return <AlertTriangle className="h-4 w-4" />
-        }
-    }
+  switch (String(status || "").toUpperCase()) {
+    case "PENDING":
+      return <Clock className="h-4 w-4" />;
+    case "CONFIRMED":
+      return <CheckCircle className="h-4 w-4" />;
+    case "SHIPPING":
+      return <Truck className="h-4 w-4" />;
+    case "DELIVERED":
+      return <Package className="h-4 w-4" />;
+    case "CANCELLED":
+      return <XCircle className="h-4 w-4" />;
+    case "PAYMENT_SUCCESS":
+      return <CheckCircle className="h-4 w-4" />;
+    default:
+      return <AlertTriangle className="h-4 w-4" />;
+  }
+};
 
     const getPaymentMethodText = (methodId) => {
         switch (methodId) {
@@ -314,7 +382,7 @@ export default function OrdersAdminPage() {
                     `"${order.deliveryAddress.replace(/"/g, '""')}"`,
                     order.totalAmount,
                     formatDate(order.deliveryDate),
-                    getStatusText(order.status),
+                    getStatusText(order.orderStatus),
                 ].join(","),
             ),
         ].join("\n")
@@ -374,7 +442,7 @@ export default function OrdersAdminPage() {
           <div class="invoice-info-block">
             <h4>Thông tin thanh toán</h4>
             <p><strong>Phương thức thanh toán:</strong> ${getPaymentMethodText("PM001")}</p>
-            <p><strong>Trạng thái đơn hàng:</strong> ${getStatusText(selectedOrder.status)}</p>
+            <p><strong>Trạng thái đơn hàng:</strong> ${getStatusText(selectedOrder.orderStatus)}</p>
           </div>
         </div>
         <table class="invoice-table">
@@ -394,7 +462,7 @@ export default function OrdersAdminPage() {
                 (detail, index) => `
               <tr>
                 <td>${index + 1}</td>
-                <td><img src="${"/"+detail.productImage || '/placeholder.svg?height=50&width=50'}" alt="${detail.productName}" /></td>
+                <td><img src="${"/"+detail.productImage }" alt="${detail.productName}" /></td>
                 <td>${detail.productName}</td>
                 <td>${formatCurrency(detail.unitPrice+detail.unitPrice/10)}</td>
                 <td>${detail.quantity}</td>
@@ -567,7 +635,7 @@ export default function OrdersAdminPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm text-gray-500 mb-1">Doanh thu</p>
-                                    <p className="text-2xl font-bold text-indigo-600">{formatCurrency(stats.revenue+stats.revenue/10)}</p>
+                                    <p className="text-2xl font-bold text-indigo-600">{formatCurrency(stats.revenue)}</p>
                                 </div>
                                 <div className="bg-indigo-100 p-3 rounded-lg">
                                     <DollarSign className="h-6 w-6 text-indigo-600" />
@@ -642,7 +710,11 @@ export default function OrdersAdminPage() {
                                 onChange={(e) => setStatusFilter(e.target.value)}
                             >
                                 <option value="">Tất cả trạng thái</option>
-                                <option value="PAYMENT_SUCCESS">Thanh toán thành công</option>
+                                <option value="PENDING">Chờ xác nhận</option>
+                                <option value="CONFIRMED">Đã xác nhận</option>
+                                <option value="SHIPPING">Đang giao</option>
+                                <option value="CANCELLED">Đã hủy</option>
+                                <option value="DELIVERED">Đã giao</option>
                             </select>
                         </div>
                     </div>
@@ -732,7 +804,7 @@ export default function OrdersAdminPage() {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="text-sm font-medium text-gray-900">
-                                                        {formatCurrency(order.totalAmount+order.totalAmount/10)}
+                                                        {formatCurrency(order.totalAmount+30000)}
                                                     </div>
                                                     <div className="text-xs text-gray-500">{order.details?.length || 0} sản phẩm</div>
                                                 </td>
@@ -742,11 +814,11 @@ export default function OrdersAdminPage() {
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                         <span
                                                             className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
-                                                                order.status,
+                                                                order.orderStatus,
                                                             )}`}
                                                         >
-                                                            {getStatusIcon(order.status)}
-                                                            <span className="ml-1">{getStatusText(order.status)}</span>
+                                                            {getStatusIcon(order.orderStatus)}
+                                                            <span className="ml-1">{getStatusText(order.orderStatus)}</span>
                                                         </span>
                                                 </td>
                                             </tr>
@@ -783,11 +855,11 @@ export default function OrdersAdminPage() {
                                             </div>
                                             <div
                                                 className={`px-3 py-1.5 rounded-lg ${getStatusBgColor(
-                                                    selectedOrder.status,
+                                                    selectedOrder.orderStatus,
                                                 )} text-white font-medium text-sm flex items-center`}
                                             >
-                                                {getStatusIcon(selectedOrder.status)}
-                                                <span className="ml-1.5">{getStatusText(selectedOrder.status)}</span>
+                                                {getStatusIcon(selectedOrder.orderStatus)}
+                                                <span className="ml-1.5">{getStatusText(selectedOrder.orderStatus)}</span>
                                             </div>
                                         </div>
                                         <div className="border-t border-b py-4 space-y-4">
@@ -807,7 +879,7 @@ export default function OrdersAdminPage() {
                                                 </div>
                                                 <div>
                                                     <h4 className="text-sm font-medium text-gray-700">Địa chỉ giao hàng</h4>
-                                                    <p className="text-sm text-gray-900">{selectedOrder.deliveryAddress}</p>
+                                                    <p className="text-sm text-gray-900">{selectedOrder.userAddress.street+", "+selectedOrder.userAddress.district+selectedOrder.userAddress.ward+", "+selectedOrder.userAddress.city}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-start gap-3">
@@ -829,19 +901,15 @@ export default function OrdersAdminPage() {
                                                 {selectedOrder.details && selectedOrder.details.length > 0 ? (
                                                     selectedOrder.details.map((detail) => (
                                                         <div
-                                                            key={detail.orderDetailId}
+                                                            key={detail.productId}
                                                             className="flex items-center p-3 border border-gray-200 rounded-lg hover:border-indigo-200 transition-colors"
                                                         >
                                                             <div className="w-14 h-14 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                                                                 {detail.productImage ? (
                                                                     <img
-                                                                        src={"/"+detail.productImage}
+                                                                        src={detail.productImage}
                                                                         alt={detail.productName}
                                                                         className="w-full h-full object-cover"
-                                                                        onError={(e) => {
-                                                                            e.target.onerror = null
-                                                                            e.target.src = "/placeholder.svg?height=56&width=56"
-                                                                        }}
                                                                     />
                                                                 ) : (
                                                                     <ShoppingBag className="h-6 w-6 text-gray-400" />
@@ -851,10 +919,10 @@ export default function OrdersAdminPage() {
                                                                 <p className="text-sm font-medium text-gray-900">{detail.productName}</p>
                                                                 <div className="flex justify-between items-center mt-1">
                                                                     <p className="text-xs text-gray-500">
-                                                                        {formatCurrency(detail.unitPrice+detail.unitPrice/10)} x {detail.quantity}
+                                                                        {formatCurrency(detail.unitPrice)} x {detail.quantity}
                                                                     </p>
                                                                     <p className="text-sm font-medium text-indigo-600">
-                                                                        {formatCurrency(detail.subtotal+detail.subtotal/10)}
+                                                                        {formatCurrency(detail.unitPrice*detail.quantity)}
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -871,7 +939,7 @@ export default function OrdersAdminPage() {
                                         <div className="border-t pt-4 bg-gray-50 -mx-6 -mb-6 p-6 rounded-b-xl">
                                             <div className="flex justify-between mb-2">
                                                 <span className="text-sm text-gray-600">Tổng tiền sản phẩm:</span>
-                                                <span className="text-sm font-medium">{formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10)}</span>
+                                                <span className="text-sm font-medium">{formatCurrency(selectedOrder.totalAmount)}</span>
                                             </div>
                                             <div className="flex justify-between mb-2">
                                                 <span className="text-sm text-gray-600">Phí vận chuyển:</span>
@@ -879,7 +947,7 @@ export default function OrdersAdminPage() {
                                             </div>
                                             <div className="flex justify-between font-medium text-lg mt-2 pt-2 border-t border-gray-200">
                                                 <span>Tổng cộng:</span>
-                                                <span className="text-indigo-600">{formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10+30000)}</span>
+                                                <span className="text-indigo-600">{formatCurrency(selectedOrder.totalAmount+30000)}</span>
                                             </div>
                                             <div className="flex justify-center pt-4 mt-4 border-t border-gray-200">
                                                 <button
