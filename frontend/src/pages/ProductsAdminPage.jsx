@@ -13,6 +13,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import api from "../services/api.js";
+import AddProductModal from "../components/AddProductModal.jsx";
 
 const PAGE_SIZE = 10;
 
@@ -57,15 +58,14 @@ export default function ProductAdminPage() {
     const [totalPages, setTotalPages] = useState(1);
     const [pageSize] = useState(PAGE_SIZE);
     const [sort, setSort] = useState({ key: "createdAt", dir: "desc" });
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const fetchProducts = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Nếu backend bạn support paging:
       const res = await api.get(`/products?page=${currentPage}&size=${pageSize}`);
 
-      // Backend có thể trả: array hoặc {content, totalPages, totalElements}
       const raw = Array.isArray(res.data)
         ? res.data
         : Array.isArray(res.data?.content)
@@ -93,7 +93,6 @@ export default function ProductAdminPage() {
   };
 
   useEffect(() => {
-    // ✅ nếu currentPage bị NaN vì đâu đó set sai, kéo về 0
     if (!Number.isFinite(currentPage) || currentPage < 0) setCurrentPage(0);
   }, [currentPage]);
 
@@ -234,13 +233,14 @@ export default function ProductAdminPage() {
               Xuất CSV
             </button>
 
-            <Link
-              to="/admin/products/create"
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg hover:from-indigo-700 hover:to-blue-700 shadow-md"
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
             >
               <Plus className="h-4 w-4" />
               Thêm sản phẩm
-            </Link>
+            </button>
+
           </div>
         </div>
 
@@ -392,10 +392,13 @@ export default function ProductAdminPage() {
           </div>
         </div>
 
-        {/* Debug nhanh */}
-        <div className="mt-4 text-xs text-gray-500">
-          Debug: currentPage={String(currentPage)} | totalPages={String(totalPages)} | products={products.length} | showing={sorted.length}
-        </div>
+        <AddProductModal
+          open={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onCreated={() => {
+            fetchProducts();
+          }}
+        />
       </div>
     </div>
   );

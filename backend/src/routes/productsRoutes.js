@@ -3,7 +3,7 @@ const Product = require('../models/Product');
 const Interaction = require('../models/Interaction');
 
 router.post('/', async (req, res) => {
-  const { productName, categoryId, isActive, reorderLevel, supplierId, unitPrice, unitWeight, unitsInStock, unitsOnOrder, imageUrl } = req.body;
+  const { productName, categoryId, isActive, reorderLevel, supplierId, unitPrice, unitWeight, unitsInStock, unitsOnOrder, imageUrl,listPrice, description } = req.body;
   const product = new Product({
     productName,
     categoryId,
@@ -14,7 +14,9 @@ router.post('/', async (req, res) => {
     unitWeight,
     unitsInStock,
     unitsOnOrder,
-    imageUrl
+    imageUrl,
+    listPrice,
+    description
   });
 
   try {

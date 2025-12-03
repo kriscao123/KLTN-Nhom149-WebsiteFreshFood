@@ -12,6 +12,7 @@ const categoryRoutes=require('./src/routes/categoryRoutes');
 const cartRoutes=require('./src/routes/cartRoutes');
 const orderRoutes=require('./src/routes/orderRoutes');
 const userRoutes=require('./src/routes/userRoutes');
+const uploadRoutes = require('./src/routes/uploadRoutes');
 
 const app = express();
 app.use(cors({ origin: ['http://localhost:5174'], credentials: true }));
@@ -28,6 +29,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/users',userRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');      
