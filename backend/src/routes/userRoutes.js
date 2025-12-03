@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/User');
 const Role = require('../models/Role');
+const bcrypt = require('bcryptjs');
 const router = express.Router();
 
 // Lấy danh sách tất cả người dùng
@@ -10,7 +11,7 @@ router.get('/', async (req, res) => {
     const users = await User.find()
       .populate({
         path: 'roleId',
-        model: 'roles',          // tên model trong Role.js
+        model: 'roles',          
         select: 'roleName'
       })
       .lean();
@@ -20,7 +21,7 @@ router.get('/', async (req, res) => {
       username: u.username,
       email: u.email,
       roleId: u.roleId ? String(u.roleId._id) : null,
-      role: u.roleId?.roleName || 'USER',   // <- FE dùng field này,
+      role: u.roleId?.roleName || 'USER',  
       phone: u.phone || '',
       address: u.address || ''
     }));
@@ -53,20 +54,31 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { username, email, roleId } = req.body;
-
-    // Kiểm tra các trường hợp lỗi đầu vào
-    if (!username || !email || !roleId) {
-      return res.status(400).json({ message: 'Vui lòng cung cấp đủ thông tin (username, email, roleId)' });
+    const { username, phone,address, password} = req.body;
+    let user;
+    if(!username && !phone&&!address&&!password){
+      return res.status(400).json({ message: 'Thiếu thông tin cập nhật' });
+    } else if(password){
+      const passwordHash=await bcrypt.hash(password,10);
+      user = await User.findByIdAndUpdate(id, { passwordHash}, { new: true });
+    } else{
+      user = await User.findByIdAndUpdate(id, { username, phone,address}, { new: true });
     }
-
-    const user = await User.findByIdAndUpdate(id, { username, email, roleId }, { new: true });
-
     if (!user) {
       return res.status(404).json({ message: 'Không tìm thấy người dùng' });
     }
 
-    return res.json(user);  // Trả về thông tin người dùng đã cập nhật
+    const roleName=await Role.findById(user.roleId).then(role=>role.roleName);
+    const userRes = {
+                userId: user?._id,
+                username: user?.username || (user?.email ? user.email.split("@")[0] : "user"),
+                email: user?.email || null,
+                phone: user?.phone || null,
+                address: user?.address || null,
+                role: roleName, 
+            };
+
+    return res.json(userRes);  
   } catch (err) {
     console.error("Lỗi khi cập nhật người dùng:", err);
     return res.status(500).json({ message: 'Lỗi server khi cập nhật người dùng' });

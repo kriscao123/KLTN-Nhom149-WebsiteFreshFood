@@ -2,7 +2,7 @@ const express = require('express');
 const Category = require('../models/Category');
 const router = express.Router();
 
-// 1. Tạo category mới
+
 router.post('/', async (req, res) => {
   const { categoryName, parentCategoryId } = req.body;
   const category = new Category({ categoryName, parentCategoryId });
@@ -15,9 +15,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// 2. Lấy tất cả category hoặc lọc theo parentCategoryId
 router.get('/', async (req, res) => {
-  const { parentCategoryId } = req.query; // Lọc theo parentCategoryId nếu có
+  const { parentCategoryId } = req.query; 
   try {
     const filter = parentCategoryId ? { parentCategoryId } : {};
     const categories = await Category.find(filter);
@@ -27,7 +26,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 3. Lấy category theo ID
 router.get('/:id', async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
@@ -38,7 +36,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// 4. Cập nhật category
 router.put('/:id', async (req, res) => {
   try {
     const category = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -49,7 +46,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// 5. Xóa category
 router.delete('/:id', async (req, res) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);

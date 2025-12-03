@@ -43,7 +43,19 @@ const RegisterPage = () => {
         else if (!/^\+84\d{9}$/.test(formData.phone)) {
             newErrors.phone = "Số điện thoại phải bắt đầu bằng +84 và có 9 chữ số sau đó (ví dụ: +84326829327)";
         }
-        if (!formData.address.trim()) newErrors.address = "Địa chỉ không được để trống";
+        if (!formData.address.trim()) {
+            newErrors.address = "Địa chỉ không được để trống";
+        } else {
+            const addr = formData.address.trim();
+
+            const addressPattern = /^(.+?)\s+(Quận\s+.+?)\s+(.+)$/i;
+
+            if (!addressPattern.test(addr)) {
+                newErrors.address =
+                    "Địa chỉ phải có dạng: 'Số nhà Tên đường Quận X Tên thành phố', " +
+                    "ví dụ: '115 Tô Hiến Thành Quận 10 Hồ Chí Minh' (không dùng dấu phẩy).";
+            }
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -57,51 +69,26 @@ const RegisterPage = () => {
         setFormData({ ...formData, phone: phoneValue });
     };
 
-    const handleAddressInput = (addressInput) => {
-  // Tách địa chỉ thành các phần
-  const addressParts = addressInput.trim().split(/\s+/); // Sử dụng regex để tách bằng khoảng trắng
-  
-  const street = addressParts.slice(0, addressParts.length - 2).join(' '); // Lấy phần đầu làm street
-  const district = addressParts[addressParts.length - 2]; // Phần gần cuối là district
-  const ward = addressParts[addressParts.length - 1]; // Phần cuối cùng là ward
-  
-  // Nếu muốn mặc định city là "Hồ Chí Minh" hoặc lấy từ input
-  const city = "Hồ Chí Minh"; // Hoặc lấy từ input nếu có
+    const handleAddressInput = (address) => {
+        const regex = /^(.+?)\s+(Quận\s+.+?)\s+(.+)$/i;
+        const match = address.trim().match(regex);
+        console.log("Địa chỉ nhập vào:", address);
 
-  // Trả về cấu trúc address
-  return {
-    street,
-    city,
-    district,
-    ward
-  };
-};
+        if (match) {
+            const street = match[1].trim();  
+            const district = match[2].trim();
+            const city = match[3].trim();    
 
-    const handleSendOtp = async (e) => {
-  e.preventDefault();
-  setErrors({});
-  setIsLoading(true);
-  try {
-    // FE của bạn đang có field email & phone — chọn 1 trong 2
-    const identifier = formData.email || formData.phone;
-    if (!identifier) {
-      setErrors({ email: "Nhập email hoặc số điện thoại để nhận OTP" });
-      setIsLoading(false);
-      return;
-    }
+            return({
+            street,
+            district,
+            city,
+            });
+        } else {
+            console.log("Địa chỉ không hợp lệ");
+        }
+    };
 
-    await api.post("/auth/request-otp", {
-      identifier,          // BE tự nhận biết email/phone
-      purpose: "register", // theo comment trong BE
-    });
-
-    setShowVerification(true); // hiển thị form nhập OTP
-  } catch (err) {
-    setErrors({ email: err.response?.data?.message || "Gửi OTP thất bại" });
-  } finally {
-    setIsLoading(false);
-  }
-};
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -175,7 +162,7 @@ const RegisterPage = () => {
                 className="w-full max-w-md"
             >
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <div className="bg-blue-600 p-6 relative">
+                    <div className="bg-green-600 p-6 relative">
                         <button
                             className="absolute top-6 left-6 text-white hover:text-blue-200 transition-colors"
                             onClick={() => navigate("/login")}
@@ -352,7 +339,7 @@ const RegisterPage = () => {
                                         <button
                                             type="submit"
                                             disabled={isLoading}
-                                            className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                                            className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
                                                 isLoading ? "opacity-70 cursor-not-allowed" : ""
                                             }`}
                                         >
@@ -412,7 +399,7 @@ const RegisterPage = () => {
                                         <button
                                             type="submit"
                                             disabled={isLoading}
-                                            className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                                            className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
                                                 isLoading ? "opacity-70 cursor-not-allowed" : ""
                                             }`}
                                         >
@@ -453,14 +440,14 @@ const RegisterPage = () => {
                                 {showVerification ? (
                                     <>
                                         Đã có tài khoản?{" "}
-                                        <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                                        <Link to="/login" className="font-medium text-green-600 hover:text-green-500">
                                             Đăng nhập
                                         </Link>
                                     </>
                                 ) : (
                                     <>
                                         Đã có tài khoản?{" "}
-                                        <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                                        <Link to="/login" className="font-medium text-green-600 hover:text-green-500">
                                             Đăng nhập ngay
                                         </Link>
                                     </>

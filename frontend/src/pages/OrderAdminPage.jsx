@@ -190,7 +190,6 @@ const sameLocalDay = (a, b) =>
             ? (() => {
                 const filterDate = parseDDMMYYYY(dateFilter);
                 if (!filterDate) return true;
-
                 const delivery = new Date(order.deliveryDate);
                 if (Number.isNaN(delivery.getTime())) return false;
 
@@ -462,11 +461,11 @@ const sameLocalDay = (a, b) =>
                 (detail, index) => `
               <tr>
                 <td>${index + 1}</td>
-                <td><img src="${"/"+detail.productImage }" alt="${detail.productName}" /></td>
+                <td><img src="${detail.productImage }" alt="${detail.productName}" /></td>
                 <td>${detail.productName}</td>
-                <td>${formatCurrency(detail.unitPrice+detail.unitPrice/10)}</td>
+                <td>${formatCurrency(detail.unitPrice)}</td>
                 <td>${detail.quantity}</td>
-                <td class="amount">${formatCurrency(detail.subtotal+detail.subtotal/10)}</td>
+                <td class="amount">${formatCurrency(detail.unitPrice*detail.quantity)}</td>
               </tr>
             `,
             )
@@ -476,7 +475,7 @@ const sameLocalDay = (a, b) =>
         <div class="invoice-total">
           <div class="invoice-total-row">
             <div class="label">Tổng tiền hàng:</div>
-            <div class="value">${formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10)}</div>
+            <div class="value">${formatCurrency(selectedOrder.totalAmount)}</div>
           </div>
           <div class="invoice-total-row">
             <div class="label">Phí vận chuyển:</div>
@@ -484,7 +483,7 @@ const sameLocalDay = (a, b) =>
           </div>
           <div class="invoice-total-row final">
             <div class="label">Tổng thanh toán:</div>
-            <div class="value">${formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10+30000)}</div>
+            <div class="value">${formatCurrency(selectedOrder.totalAmount+30000)}</div>
           </div>
         </div>
         <div class="invoice-footer">

@@ -40,10 +40,6 @@ const userSchema = new Schema({
     district: {
       type: String,
       trim: true
-    },
-    ward: {
-      type: String,
-      trim: true
     }
   },
   roleId: {

@@ -88,7 +88,7 @@ const ProfilePage = () => {
             setUsername(storedUser.username);
             setEmail(storedUser.email);
             setPhone(storedUser.phone || "");
-            setAddress(storedUser.address.street+storedUser.address.district+storedUser.address.city || "");
+            setAddress(storedUser.address.street+' '+storedUser.address.district+' '+storedUser.address.city || "");
 
             // Fetch orders for the user
             const orderResponse = await api.get(`/order/user/${storedUser.userId}`);
@@ -148,6 +148,28 @@ const ProfilePage = () => {
         setTimeout(() => setNotification(null), 3000);
     };
 
+    const handleAddressInput = (address) => {
+        // Regex phân tách địa chỉ thành 3 phần: street, district, city
+        const regex = /^(.+?)\s+(Quận\s+.+?)\s+(.+)$/i;
+        const match = address.trim().match(regex);
+        console.log("Địa chỉ nhập vào:", address);
+
+        if (match) {
+            const street = match[1].trim();  
+            const district = match[2].trim();
+            const city = match[3].trim();    
+
+            return({
+            street,
+            district,
+            city,
+            });
+        } else {
+            console.log("Địa chỉ không hợp lệ");
+        }
+    };
+
+
     const handleUpdatePersonalInfo = async (e) => {
         e.preventDefault();
         if (!username.trim() || !email.trim()) {
@@ -158,13 +180,10 @@ const ProfilePage = () => {
         try {
             setIsSubmitting(true);
             const payload = {
-                username: user.username,
-                email: user.email,
-                password: user.password,
-                phone: user.phone,
-                address: user.address,
-                role: user.role,
-            };
+                username: username,
+                phone: phone,
+                address: handleAddressInput(address),
+                };
             const response = await api.put(`/users/${user.userId}`, payload);
             const updatedUser = response.data;
             setUser(updatedUser);
@@ -197,7 +216,7 @@ const ProfilePage = () => {
             setIsSubmitting(true);
 
             // Verify current password
-            const verifyResponse = await api.post('/users/login', {
+            const verifyResponse = await api.post(`/auth/login`, {
                 email: user.email,
                 password: currentPassword
             });
@@ -208,12 +227,7 @@ const ProfilePage = () => {
 
             // Proceed with password change
             const payload = {
-                username: user.username,
-                email: user.email,
                 password: newPassword,
-                phone: user.phone,
-                address: user.address,
-                role: user.role,
             };
             await api.put(`/users/${user.userId}`, payload);
             showNotification("success", "Đổi mật khẩu thành công");
@@ -487,6 +501,7 @@ const ProfilePage = () => {
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="Email"
+                                                disabled={true}
                                                 className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-300"
                                             />
                                         </div>
