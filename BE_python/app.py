@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+import os
 
 from src.routes.recommendation import recommend_bp
 from src.routes.user_recommendation import user_recommend_bp
