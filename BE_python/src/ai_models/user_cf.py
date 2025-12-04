@@ -4,7 +4,6 @@ from config import Config
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Kết nối MongoDB
 client = MongoClient(Config.MONGO_URI)
 db = client.get_default_database()
 
@@ -29,7 +28,6 @@ def _fetch_interactions():
 
     df = pd.DataFrame(docs)
 
-    # Chuyển ObjectId -> string
     df['user_id'] = df['user_id'].astype(str)
     df['product_id'] = df['product_id'].astype(str)
 

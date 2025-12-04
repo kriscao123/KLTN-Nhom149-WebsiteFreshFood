@@ -4,12 +4,10 @@ import pandas as pd
 from bson import ObjectId
 from datetime import datetime
 
-from src.models.product import Product  # Import Product model từ models
-
+from src.models.product import Product  
 
 def _normalize_mongo_document(doc):
     """Chuẩn hóa 1 document MongoDB để tiện convert sang DataFrame."""
-    # copy sang dict mới để tránh sửa object gốc của pymongo
     doc = dict(doc)
     if '_id' in doc:
         doc['_id'] = str(doc['_id'])
@@ -81,7 +79,6 @@ def get_recommendations(product_name, products_df, top_n=5):
     sim_scores = sim_scores[:top_n]
     product_indices = [i for i, _ in sim_scores]
 
-    # Các cột muốn trả về cho frontend (chỉ lấy những cột thực sự tồn tại)
     columns_to_keep = [
         '_id',
         'productName',
@@ -104,7 +101,6 @@ def get_recommended_product_names(product_id, top_n=5):
     if '_id' not in products_df.columns:
         return pd.DataFrame()
 
-    # product_id từ FE / backend Node thường là string ObjectId
     str_id = str(product_id)
     product_details = products_df[products_df['_id'] == str_id]
 

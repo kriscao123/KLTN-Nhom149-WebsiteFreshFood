@@ -2,7 +2,6 @@ from pymongo import MongoClient
 from bson import ObjectId
 from config import Config
 
-# Kết nối MongoDB dùng chung với các model khác
 client = MongoClient(Config.MONGO_URI)
 db = client.client['FoodSalesManagement']
 
