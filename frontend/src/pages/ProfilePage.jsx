@@ -1,7 +1,5 @@
-"use client";
-
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import api from "../services/api";
 import { CheckCircle, AlertTriangle, X, Clock, Truck, Package, XCircle, Search } from "lucide-react";
 import { getUserFromLocalStorage } from "../assets/js/userData";
@@ -24,7 +22,6 @@ const ProfilePage = () => {
     const [phone, setPhone] = useState("");
     const [address, setAddress] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
-    const navigate = useNavigate();
     const formatPhoneNumber = (phone) => {
         if (!phone) return '';
         // Remove +84 and ensure leading 0
@@ -591,7 +588,7 @@ const ProfilePage = () => {
                                                             </p>
                                                             <div className="mt-4">
                                                                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Sản phẩm:</h4>
-                                                                {order.orderItems.map((item, index) => {  // Duyệt qua orderItems
+                                                                {order.orderItems.map((item) => {  // Duyệt qua orderItems
                                                                     const product = products[item.productId] || {};
                                                             
                                                                     return (

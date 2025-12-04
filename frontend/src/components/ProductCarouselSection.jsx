@@ -13,7 +13,6 @@ export default function ProductCarouselSection({ id, title, products = [], link 
         )}
       </div>
 
-      {/* Mỗi item có độ rộng cố định (px) theo breakpoint để card không bị to quá */}
       <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2 -mx-3 px-3">
         {products.slice(0, 20).map((p) => (
           <div

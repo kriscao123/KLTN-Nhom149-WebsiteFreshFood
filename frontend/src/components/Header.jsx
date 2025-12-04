@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useCallback } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { getUserFromLocalStorage, clearUserFromLocalStorage } from "../assets/js/userData"
@@ -35,7 +33,7 @@ const Header = () => {
         const handleCartUpdated = () => {
             const loggedInUser = getUserFromLocalStorage()
             if (loggedInUser) {
-                // fetchCartCount(loggedInUser.email)
+                fetchCartCount(loggedInUser.email)
             }
         }
 
@@ -71,20 +69,18 @@ const Header = () => {
 
     const fetchCartCount = async (userId) => {
     try {
-        // Gọi API để lấy giỏ hàng của người dùng
         const response = await api.get(`/cart/user/${userId}`);
         
-        // Kiểm tra dữ liệu giỏ hàng trả về
         if (response.data && response.data.cart) {
             const cartItems = response.data.cart.items || [];
             const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0); // Tính tổng số lượng sản phẩm trong giỏ hàng
-            setCartCount(totalItems); // Cập nhật số lượng sản phẩm
+            setCartCount(totalItems); 
         } else {
-            setCartCount(0); // Nếu không có giỏ hàng
+            setCartCount(0); 
         }
     } catch (error) {
         console.error("Lỗi khi lấy giỏ hàng:", error);
-        setCartCount(0); // Nếu có lỗi khi gọi API
+        setCartCount(0); 
     }
 };
 
@@ -151,13 +147,13 @@ const Header = () => {
     return (
         <header className="sticky top-0 left-0 w-full glass z-50">
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
-        {/* Logo */}
+        
         <div>
           <Link to="/" className="text-2xl md:text-3xl font-extrabold tracking-tight text-emerald-700">
             NH Food
           </Link>
         </div>
-                {/* Search */}
+                
                 <div className="flex-1 max-w-xl relative">
                     <form onSubmit={handleSearchSubmit} className="relative">
                         <input
@@ -206,7 +202,7 @@ const Header = () => {
                     )}
                 </div>
 
-                {/* Navigation */}
+                
                 <div className="hidden md:flex items-center gap-6 ml-6">
                     <Link to="/" className="py-2 font-medium text-gray-700 hover:text-emerald-700">
                         Trang chủ
@@ -253,7 +249,7 @@ const Header = () => {
                     )}
                 </div>
 
-                {/* Cart */}
+                
                 <div className="ml-4">
                     <Link
                         to="/cart"
@@ -269,7 +265,6 @@ const Header = () => {
                     </Link>
                 </div>
 
-                {/* Mobile menu button */}
                 <div className="md:hidden ml-4">
                     <button
                         className="btn-ghost h-10 w-10"
@@ -280,7 +275,6 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* Mobile menu */}
             {isMenuOpen && (
                 <div className="md:hidden bg-white border-t border-gray-200 py-2 shadow-sm">
                     <Link to="/" className="block px-4 py-2 text-gray-900 hover:bg-gray-100">
@@ -332,7 +326,6 @@ const Header = () => {
                 </div>
             )}
 
-            {/* Logout Confirmation Modal */}
             {isLogoutModalOpen && (
                 <div className="fixed w-screen inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-100">

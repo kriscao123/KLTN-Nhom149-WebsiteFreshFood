@@ -12,7 +12,6 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState({})
 
-    // Close modal when pressing Escape key
     useEffect(() => {
         const handleEscape = (e) => {
             if (e.key === "Escape" && isOpen) {
@@ -24,7 +23,6 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
         return () => window.removeEventListener("keydown", handleEscape)
     }, [isOpen, onClose])
 
-    // Prevent scrolling when modal is open
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden"
@@ -63,16 +61,13 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
 
         setIsLoading(true)
 
-        // Simulate API call
         setTimeout(() => {
             setIsLoading(false)
-            // Success handling would go here
             console.log("Login attempt with:", { email, password, rememberMe })
             onClose()
         }, 1500)
     }
 
-    // Stop propagation to prevent closing when clicking inside the modal
     const handleModalClick = (e) => {
         e.stopPropagation()
     }

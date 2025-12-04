@@ -25,8 +25,6 @@ export default function CustomerPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [notification, setNotification] = useState(null);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
     const customersPerPage = 10;
 
     const formatPhoneNumber = (phone) => {
@@ -36,11 +34,6 @@ export default function CustomerPage() {
         formatted = formatted.replace(/\D/g, "");
         console.log("Số điện thoại đã định dạng:", formatted);
         return formatted;
-    };
-
-    const showNotification = (type, message) => {
-        setNotification({ type, message });
-        setTimeout(() => setNotification(null), 3000);
     };
 
     const fetchCustomers = async () => {
@@ -87,33 +80,7 @@ export default function CustomerPage() {
     console.log("Khách hàng hiện tại:", currentCustomers);
     const totalPages = Math.ceil(filteredCustomers.length / customersPerPage);
 
-    const handleEditCustomer = (customer) => {
-        setSelectedCustomer(customer);
-        setIsEditModalOpen(true);
-    };
-
-    const handleCustomerUpdated = (updatedCustomer) => {
-        setCustomers(
-            customers
-                .map((c) => (c.userId === updatedCustomer.userId ? updatedCustomer : c))
-                .sort((a, b) => b.userId.localeCompare(a.userId))
-        );
-        setIsEditModalOpen(false);
-        showNotification("success", "Khách hàng đã được cập nhật thành công");
-    };
-
-    const handleDeleteCustomer = async (id) => {
-        if (confirm("Bạn có chắc chắn muốn xóa khách hàng này?")) {
-            try {
-                await api.delete(`/users/${id}`);
-                setCustomers(customers.filter((c) => c.userId !== id));
-                showNotification("success", "Khách hàng đã được xóa");
-            } catch (err) {
-                console.error("Lỗi khi xóa khách hàng:", err);
-                showNotification("error", "Không thể xóa khách hàng. Vui lòng thử lại.");
-            }
-        }
-    };
+    
 
     if (isLoading) {
         return (

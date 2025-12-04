@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard.jsx';
 import { Link } from "react-router-dom";
 import api from '../services/api.js';
-import axios from 'axios';
 
-// Hàm debounce để giảm tần suất gọi hàm tìm kiếm
 const debounce = (func, delay) => {
     let timeoutId;
     return (...args) => {
@@ -18,41 +16,44 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
     const [currentCategory, setCurrentCategory] = useState(selectedCategory);
     const [currentSort, setCurrentSort] = useState('default');
     const [searchTerm, setSearchTerm] = useState('');
-    const [priceRange, setPriceRange] = useState({ minPrice: '', maxPrice: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [allProducts, setAllProducts] = useState([]);
     const [categories, setCategories] = useState([]);
 
-    // Lấy danh sách sản phẩm và danh mục từ backend
-    // Lấy danh sách categories khi component được render lần đầu
-  useEffect(() => {
-    axios.get('http://localhost:5000/api/categories')
-      .then((response) => {
-        setCategories(response.data); // Lưu dữ liệu vào state
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching categories:', error);
-      });
-  }, []);
+    useEffect(() => {
+    const fetchCategories = async () => {
+        try {
+            const response = await api.get('/categories');
+            setCategories(response.data); 
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
+    fetchCategories();
+    }, []);
 
   // Lấy các sản phẩm khi chọn một category
   useEffect(() => {
-    if (selectedCategory) {
-      axios.get(`http://localhost:5000/api/products?categoryId=${selectedCategory}`)
-        .then((response) => {
-          setAllProducts(response.data);
-        })
-        .catch((error) => {
-          console.error('Error fetching products:', error);
-        });
-    }
-  }, [selectedCategory]);
+    const fetchProducts = async () => {
+        if (selectedCategory) {
+            try {
+                const response = await api.get(`/products?categoryId=${selectedCategory}`);
+                setAllProducts(response.data);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        }
+    };
+
+    fetchProducts();
+}, [selectedCategory]);
     // Lọc sản phẩm khi tiêu chí thay đổi
     useEffect(() => {
         filterProducts();
-    }, [currentCategory, currentSort, searchTerm, priceRange, allProducts]);
+    }, [currentCategory, currentSort, searchTerm, allProducts]);
 
     const filterProducts = () => {
         let result = [...allProducts];
@@ -67,15 +68,6 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
         // Lọc theo danh mục
         if (currentCategory !== 'all') {
             result = result.filter(product => product.categoryId === currentCategory);
-        }
-
-        // Lọc theo khoảng giá
-        const minPrice = priceRange.minPrice ? parseFloat(priceRange.minPrice) : 0;
-        const maxPrice = priceRange.maxPrice ? parseFloat(priceRange.maxPrice) : Infinity;
-        if (priceRange.minPrice || priceRange.maxPrice) {
-            result = result.filter(product =>
-                product.originalPrice >= minPrice && product.originalPrice <= maxPrice
-            );
         }
 
         // Sắp xếp
@@ -115,14 +107,6 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
         setCurrentSort(e.target.value);
     };
 
-    const handlePriceRangeChange = (e) => {
-        const { name, value } = e.target;
-        setPriceRange(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -144,7 +128,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
     }
 
     return (
-        <section id="products" className="py-5 bg-green-50">
+        <section id="products" className="py-5 bg-green-50 mt-12">
             <div className="container mx-auto">
                 <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
                     <h2 className="text-2xl font-semibold mb-3 md:mb-0">Sản phẩm nổi bật</h2>
@@ -168,34 +152,13 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                                 </option>
                             ))}
                         </select>
-                        <div className="flex gap-2">
-                            <input
-                                type="number"
-                                name="minPrice"
-                                placeholder="Giá từ"
-                                value={priceRange.minPrice}
-                                onChange={handlePriceRangeChange}
-                                className="border border-gray-300 rounded-md p-2 w-full md:w-28 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                min="0"
-                            />
-                            <input
-                                type="number"
-                                name="maxPrice"
-                                placeholder="Giá đến"
-                                value={priceRange.maxPrice}
-                                onChange={handlePriceRangeChange}
-                                className="border border-gray-300 rounded-md p-2 w-full md:w-28 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                min="0"
-                            />
-                        </div>
+                        
                         <select
                             value={currentSort}
                             onChange={handleSortChange}
                             className="border border-gray-300 rounded-md p-2 w-full md:w-auto"
                         >
                             <option value="default">Sắp xếp</option>
-                            <option value="priceLow">Giá: Thấp đến cao</option>
-                            <option value="priceHigh">Giá: Cao đến thấp</option>
                             <option value="nameAZ">Tên: A-Z</option>
                             <option value="nameZA">Tên: Z-A</option>
                         </select>

@@ -1,7 +1,5 @@
-"use client"
 import { useMemo } from "react"
 
-// Tạo slug để làm id anchor
 const slugify = (s="") => s.toLowerCase()
   .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   .replace(/[^a-z0-9]+/g, "-")

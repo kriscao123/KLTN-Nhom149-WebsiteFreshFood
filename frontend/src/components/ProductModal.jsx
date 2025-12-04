@@ -18,7 +18,7 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
     const handleAddToCart = () => {
         addToCart(product, quantity);
         setAddedToCart(true);
-        onAddToCart(); // Gọi hàm cập nhật số lượng từ component cha
+        onAddToCart(); 
         setTimeout(() => {
             setAddedToCart(false);
         }, 2000);

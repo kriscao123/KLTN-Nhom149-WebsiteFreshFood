@@ -1,6 +1,5 @@
 @reference "tailwindcss";
 
-/* ===== Base & utilities giữ nguyên như trước ===== */
 @layer base {
   :root{
     --nh-primary: 154 84% 35%;
@@ -38,13 +37,11 @@
 
   .chip { @apply inline-flex items-center gap-2 px-3 py-2 rounded-full border bg-white hover:bg-gray-50 text-sm; }
 
-  /* 🔧 Phần chung cho tất cả biến thể nút: áp dụng UTILITIES trực tiếp  */
   :is(.btn, .btn-primary, .btn-ghost) {
     @apply inline-flex items-center justify-center h-10 px-4 rounded-lg
            font-medium shadow-sm focus:outline-none focus:ring-2;
   }
 
-  /* Biến thể cụ thể */
   .btn { @apply border border-gray-200 bg-white hover:bg-gray-50 focus:ring-gray-300; }
   .btn-primary { @apply text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-400; }
   .btn-ghost { @apply bg-white border border-gray-200 hover:bg-gray-50; }

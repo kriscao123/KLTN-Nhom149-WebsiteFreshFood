@@ -18,14 +18,14 @@ const MenuAdmin = ({ user: propUser, isSidebarOpen, toggleSidebar, handleLogout 
     };
 
     useEffect(() => {
-        console.log("MenuAdmin - propUser:", propUser); // Debug
+        console.log("MenuAdmin - propUser:", propUser); 
         if (propUser) {
             setUser(propUser);
             return;
         }
 
         const storedUser = getUserFromLocalStorage();
-        console.log("MenuAdmin - storedUser:", storedUser); // Debug
+        console.log("MenuAdmin - storedUser:", storedUser); 
         if (!storedUser?.userId) {
             console.warn("No valid user found, redirecting to login");
             navigate("/login", { replace: true });
@@ -36,7 +36,7 @@ const MenuAdmin = ({ user: propUser, isSidebarOpen, toggleSidebar, handleLogout 
     }, [propUser, navigate]);
 
     const handleLogoutClick = (e) => {
-        e.preventDefault(); // Prevent default Link behavior
+        e.preventDefault(); 
         setIsLogoutModalOpen(true);
     };
 

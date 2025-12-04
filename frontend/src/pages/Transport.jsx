@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import {
@@ -29,15 +27,7 @@ const Transport = () => {
         setTimeout(() => setNotification(null), 3000)
     }
 
-    // Get delivery status background color
-    const getDeliveryStatusBgColor = (status) => {
-        switch (status) {
-            case "PAYMENT_SUCCESS":
-                return "bg-green-500"
-            default:
-                return "bg-gray-500"
-        }
-    }
+    
 
     // Get delivery status text
     const getDeliveryStatusText = (status) => {

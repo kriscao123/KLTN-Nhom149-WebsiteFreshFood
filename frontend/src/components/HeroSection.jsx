@@ -1,5 +1,3 @@
-"use client";
-
 import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
@@ -8,10 +6,10 @@ import "swiper/css/pagination";
 
 export default function HeroSection() {
   const images = [
-    "/img/bia.png",
-    "/img/bia2.jpeg",
-    "/img/bia3.jpg",
-    "/img/bia4.jpg",
+    "https://nh-food-bucket.s3.ap-southeast-1.amazonaws.com/img/bia.png",
+    "https://nh-food-bucket.s3.ap-southeast-1.amazonaws.com/img/bia2.jpeg",
+    "https://nh-food-bucket.s3.ap-southeast-1.amazonaws.com/img/bia3.jpg",
+    "https://nh-food-bucket.s3.ap-southeast-1.amazonaws.com/img/bia4.jpg",
   ];
 
   return (
@@ -26,7 +24,6 @@ export default function HeroSection() {
     >
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center">
-          {/* Text Section (bên trái) */}
           <div className="md:w-1/2 mb-6 md:mb-0 md:pr-8 text-center md:text-left">
             <motion.h1
               className="font-bold text-4xl mb-3 text-green-900"
@@ -59,7 +56,6 @@ export default function HeroSection() {
             </motion.a>
           </div>
 
-          {/* Image Slider Section (bên phải) */}
           <div className="md:w-1/2 flex justify-center">
             <Swiper
               modules={[Pagination, Autoplay]}

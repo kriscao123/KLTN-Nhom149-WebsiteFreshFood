@@ -54,7 +54,7 @@ const AboutPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="flex flex-col items-center">
             <img
-              src="/img/bia2.jpeg" 
+              src="https://nh-food-bucket.s3.ap-southeast-1.amazonaws.com/img/bia2.jpeg" 
               alt="Nông trại sạch"
               className="w-full h-80 object-cover rounded-lg mb-6"
             />
@@ -67,7 +67,7 @@ const AboutPage = () => {
 
           <div className="flex flex-col items-center">
             <img
-              src="/img/bia3.jpg"
+              src="https://nh-food-bucket.s3.ap-southeast-1.amazonaws.com/img/bia3.jpg"
               alt="Sản phẩm chất lượng"
               className="w-full h-80 object-cover rounded-lg mb-6"
             />

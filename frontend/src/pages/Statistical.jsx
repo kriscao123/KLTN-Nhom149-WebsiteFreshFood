@@ -3,7 +3,6 @@ import { Bar, Pie } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js"
 import { AlertTriangle, CheckCircle, X, Download } from "lucide-react"
 import api from "../services/api.js"
-import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
 
 // Register Chart.js components

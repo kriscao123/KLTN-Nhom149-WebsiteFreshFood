@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useMemo, useState, useRef } from "react";
 import api from "@/services/api.js";
 import ProductCarouselSection from "@/components/ProductCarouselSection";

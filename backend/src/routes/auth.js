@@ -61,13 +61,12 @@ router.post('/request-otp', async (req, res) => {
 router.get('/get-role/:roleId', async (req, res) => {
   try {
     const roleId = req.params.roleId;
-    const role = await Role.findById(roleId); // Tìm vai trò từ roleId
+    const role = await Role.findById(roleId); 
 
     if (!role) {
       return res.status(404).json({ message: 'Role not found' });
     }
 
-    // Trả về roleName và description
     res.json({ roleName: role.roleName, description: role.description });
   } catch (err) {
     console.error(err);

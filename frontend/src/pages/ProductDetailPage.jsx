@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
@@ -43,11 +41,8 @@ const ProductDetailPage = () => {
         } catch (aiErr) {
           console.error("Lỗi khi gọi API AI gợi ý sản phẩm:", aiErr);
 
-          // Fallback: nếu AI lỗi thì lấy sản phẩm cùng danh mục từ backend Node
           try {
-            const similarResponse = await api.get("/products", {
-              params: { categoryId: productData.categoryId, size: 100 },
-            });
+            const similarResponse = await api.get("/products");
             const similarProductsData = similarResponse.data.filter(
               (item) => item._id !== id && item.unitsInStock > 0
             );
@@ -201,7 +196,7 @@ const ProductDetailPage = () => {
       : null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-green-50">
       {notification && (
                 <div
                     className={`fixed top-20 right-4 mt-9 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${

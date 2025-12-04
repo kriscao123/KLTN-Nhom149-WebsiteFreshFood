@@ -1,4 +1,3 @@
-// src/models/Order.js
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
@@ -14,7 +13,7 @@ const orderSchema = new mongoose.Schema({
   orderStatus: { type: String, enum: ['PENDING', 'CONFIRMED', 'SHIPPING','DELIVERED','CANCELLED'], default: 'PENDING' },
   paymentMethod: { type: String, required: true },
   paymentStatus: { type: String, enum: ['Pending', 'Completed', 'Failed'], default: 'Pending' },
-  shipAddress: { type: Object, required: true }, // Địa chỉ giao hàng
+  shipAddress: { type: Object, required: true }, 
   totalAmount: { type: Number, required: true }
 });
 

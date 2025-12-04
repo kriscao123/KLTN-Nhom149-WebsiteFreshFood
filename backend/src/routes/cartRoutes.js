@@ -5,7 +5,6 @@ const Cart = require('../models/Cart');
 const Interaction = require('../models/Interaction');
 const router = express.Router();
 
-// Tạo giỏ hàng mới cho người dùng
 router.post('/create', async (req, res) => {
   const { userId } = req.body;
 
@@ -22,7 +21,6 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// Lấy giỏ hàng của người dùng
 router.get('/user/:userId', async (req, res) => {
   const { userId } = req.params;
 
@@ -46,23 +44,20 @@ router.put('/add', async (req, res) => {
     let cart = await Cart.findOne({userId:userId,status:"active"});
 
     if (!cart) {
-      // Nếu giỏ hàng chưa tồn tại, tạo mới giỏ hàng
       cart = new Cart({
-        userId: userId, // Gắn giỏ hàng với userId
+        userId: userId, 
         items: [],
         totalPrice: 0,
         status: 'active',
       });
-      await cart.save(); // Lưu giỏ hàng mới vào cơ sở dữ liệu
+      await cart.save(); 
     }
 
     // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
     const existingProductIndex = cart.items.findIndex((item) => item.productId.toString() === productId);
     if (existingProductIndex > -1) {
-      // Nếu sản phẩm đã có, chỉ cần cập nhật số lượng
       cart.items[existingProductIndex].quantity += quantity;
     } else {
-      // Nếu sản phẩm chưa có, thêm mới sản phẩm vào giỏ hàng
       cart.items.push({ productId, quantity, price });
     }
 
@@ -75,9 +70,8 @@ router.put('/add', async (req, res) => {
 
     await newInteraction.save();
 
-    // Cập nhật tổng giá trị giỏ hàng
     cart.totalPrice += price * quantity;
-    await cart.save(); // Lưu lại giỏ hàng đã cập nhật
+    await cart.save(); 
 
     const populated = await Cart.findById(cart._id).populate('items.productId');
     res.status(200).json({ message: 'Sản phẩm đã được thêm vào giỏ', cart:populated });
@@ -118,7 +112,6 @@ router.put('/update', async (req, res) => {
   }
 });
 
-// Xóa sản phẩm khỏi giỏ hàng
 router.delete('/remove', async (req, res) => {
   const { userId, productId } = req.body;
 
@@ -128,16 +121,13 @@ router.delete('/remove', async (req, res) => {
       return res.status(404).json({ message: 'Giỏ hàng không tồn tại' });
     }
 
-    // Tìm và xóa sản phẩm khỏi giỏ hàng
     const productIndex = cart.items.findIndex((item) => item.productId.toString() === String(productId));
     if (productIndex > -1) {
       const productPrice = cart.items[productIndex].price;
       const productQuantity = cart.items[productIndex].quantity;
 
-      // Trừ tổng giá trị giỏ hàng
       cart.totalPrice -= productPrice * productQuantity;
 
-      // Xóa sản phẩm khỏi giỏ hàng
       cart.items.splice(productIndex, 1);
       await cart.save();
 
@@ -163,13 +153,11 @@ router.post('/checkout', async (req, res) => {
   }
 
   try {
-    // Lấy giỏ hàng của người dùng
     const cart = await Cart.findOne({ userId: userId, status: 'active' });
     if (!cart) {
       return res.status(404).json({ message: "Giỏ hàng không tồn tại" });
     }
 
-    // Tạo đơn hàng mới
     const orderData = {
       customerId: userId,
       orderItems: items.map(item => ({
@@ -177,9 +165,9 @@ router.post('/checkout', async (req, res) => {
         quantity: item.quantity,
         unitPrice: item.unitPrice
       })),
-      orderStatus: "PENDING",  // Đơn hàng sẽ ở trạng thái Pending khi tạo
+      orderStatus: "PENDING",  
       paymentMethod,
-      paymentStatus: "Pending", // Thanh toán chờ xử lý
+      paymentStatus: "Pending", 
       shipAddress: deliveryAddress,
       totalAmount
     };
@@ -199,7 +187,6 @@ router.post('/checkout', async (req, res) => {
       await newInteraction.save();  
     }
 
-    // Cập nhật trạng thái giỏ hàng thành "Completed"
     cart.status = 'Completed';
     await cart.save();
 

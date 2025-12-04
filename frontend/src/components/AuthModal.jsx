@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import LoginModal from "./LoginModal";
 import RegisterModal from "./RegisterModal";

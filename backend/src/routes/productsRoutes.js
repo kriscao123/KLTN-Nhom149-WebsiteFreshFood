@@ -27,6 +27,23 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.get('/search', async (req, res) => {
+  const { name, size = 10 } = req.query; 
+
+  try {
+    
+    const products = await Product.find({
+      productName: { $regex: name, $options: 'i' }, 
+    })
+      .limit(parseInt(size)) 
+      .select('_id productName imageUrl') 
+      .lean();
+
+    res.json({ content: products });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi khi tìm kiếm sản phẩm', error: err.message });
+  }
+});
 
 
 router.put('/:id', async (req, res) => {
@@ -65,19 +82,10 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-// Lấy danh sách sản phẩm với các tham số tìm kiếm
-router.get('/', async (req, res) => {
-  const { q, tag, allergen, cat } = req.query;
-  const where = {};
-
-  if (q) where.$text = { $search: q };
-  if (tag) where.diet_tags = tag;
-  if (allergen) where.allergens = allergen;
-  if (cat) where.categories = cat;
-
+router.get('/', async (req, res) => { 
   try {
     // Tìm sản phẩm theo điều kiện tìm kiếm
-    const products = await Product.find(where)
+    const products = await Product.find()
       .select('_id productName categoryId isActive reorderLevel supplierId unitPrice unitWeight unitsInStock unitsOnOrder imageUrl listPrice')  // Chỉ lấy các trường yêu cầu
       .limit(100)
       .lean();

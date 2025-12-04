@@ -6,7 +6,6 @@ const connect = require('./src/db/mongoose');
 
 const authRoutes = require('./src/routes/auth');
 const productRoutes = require('./src/routes/productsRoutes');
-const recommendRoutes = require('./src/routes/recommend');
 const interactionRoutes = require('./src/routes/interactions');
 const categoryRoutes=require('./src/routes/categoryRoutes');
 const cartRoutes=require('./src/routes/cartRoutes');
@@ -23,7 +22,6 @@ app.get('/api/health', (_req, res)=> res.json({ok:true}));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/recommend', recommendRoutes);
 app.use('/api/interactions', interactionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);

@@ -4,8 +4,7 @@ header {
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 1000; /* Đảm bảo header luôn nằm trên cùng */
-    /* background-color: green; Hoặc màu nền của bạn */
+    z-index: 1000; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Tạo bóng cho header */
 }
 
@@ -17,7 +16,6 @@ section{
   margin-left: 20px;
 }
 
-/* Căn giữa nội dung chính */
 .container {
   max-width: 1200px;  
   margin-left: auto;
@@ -67,10 +65,9 @@ section{
   padding: 10px 20px;
   cursor: pointer;
   border-radius: 5px;
-  display: none; /* Ẩn mũi tên "Xem thêm" khi không cần thiết */
+  display: none; 
 }
 
-/* Khi có nhiều sản phẩm, hiển thị nút "Xem thêm" */
 .product-section:hover .view-more-button {
   display: block;
 }

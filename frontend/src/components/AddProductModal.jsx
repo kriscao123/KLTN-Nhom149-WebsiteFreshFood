@@ -45,17 +45,17 @@ export default function AddProductModal({ open, onClose, onCreated }) {
   e.preventDefault();
   setError("");
 
-  // 1) Trim dữ liệu
+  
   const name = form.productName.trim();
   const desc = form.description.trim();
 
-  // 2) Ép kiểu số
+  
   const unitPrice = Number(form.unitPrice);
   const listPrice = Number(form.listPrice);
   const unitsInStock = Number(form.unitsInStock);
   const unitWeight = Number(form.unitWeight);
 
-  // 3) Validate các trường bắt buộc
+  
   if (!name) {
     setError("Vui lòng nhập tên sản phẩm");
     return;
@@ -73,7 +73,7 @@ export default function AddProductModal({ open, onClose, onCreated }) {
     return;
   }
 
-  // 4) Validate các trường số > 0
+  
   if (!unitPrice || unitPrice <= 0) {
     setError("Giá bán (unitPrice) phải là số lớn hơn 0");
     return;
@@ -102,7 +102,7 @@ export default function AddProductModal({ open, onClose, onCreated }) {
     });
     const imageUrl = uploadRes.data?.imageUrl;
 
-    // Payload đã ép kiểu số chuẩn
+    
     const payload = {
       productName: name,
       categoryId: form.categoryId,
@@ -126,7 +126,6 @@ export default function AddProductModal({ open, onClose, onCreated }) {
     // Đóng modal sau khi thành công
     onClose?.();  // Đảm bảo modal được đóng sau khi thêm sản phẩm
 
-    // Reset form sau khi thành công
     setForm({
       productName: "",
       categoryId: "",
@@ -137,15 +136,12 @@ export default function AddProductModal({ open, onClose, onCreated }) {
       description: "",
     });
     setImageFile(null);
-
-    // Thông báo thành công
-    alert("Sản phẩm đã được thêm thành công!");
-
+    
   } catch (err) {
     console.error("Lỗi tạo sản phẩm:", err);
     setError(err.response?.data?.message || "Lỗi tạo sản phẩm");
   } finally {
-    setIsSubmitting(false);  // Tắt trạng thái loading
+    setIsSubmitting(false);  
   }
 };
 
@@ -175,7 +171,7 @@ export default function AddProductModal({ open, onClose, onCreated }) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            {/* Tên sản phẩm */}
+            
             <div>
               <label className="block text-sm font-medium mb-1">Tên sản phẩm</label>
               <input
@@ -188,7 +184,7 @@ export default function AddProductModal({ open, onClose, onCreated }) {
               />
             </div>
 
-            {/* Danh mục */}
+            
             <div>
               <label className="block text-sm font-medium mb-1">Danh mục</label>
               <select
@@ -211,7 +207,7 @@ export default function AddProductModal({ open, onClose, onCreated }) {
               </select>
             </div>
 
-            {/* Giá bán */}
+            
             <div>
               <label className="block text-sm font-medium mb-1">Giá bán (unitPrice)</label>
               <input
@@ -224,7 +220,7 @@ export default function AddProductModal({ open, onClose, onCreated }) {
               />
             </div>
 
-            {/* Giá niêm yết */}
+            
             <div>
               <label className="block text-sm font-medium mb-1">Giá niêm yết (listPrice)</label>
               <input
@@ -236,7 +232,7 @@ export default function AddProductModal({ open, onClose, onCreated }) {
               />
             </div>
 
-            {/* Khối lượng */}
+           
             <div>
               <label className="block text-sm font-medium mb-1">Khối lượng (kg)</label>
               <input
@@ -250,7 +246,7 @@ export default function AddProductModal({ open, onClose, onCreated }) {
               />
             </div>
 
-            {/* Tồn kho */}
+            
             <div>
               <label className="block text-sm font-medium mb-1">Tồn kho (unitsInStock)</label>
               <input
@@ -264,7 +260,7 @@ export default function AddProductModal({ open, onClose, onCreated }) {
             </div>
           </div>
 
-          {/* Mô tả */}
+          
           <div>
             <label className="block text-sm font-medium mb-1">Mô tả</label>
             <textarea
@@ -276,7 +272,7 @@ export default function AddProductModal({ open, onClose, onCreated }) {
             />
           </div>
 
-          {/* Ảnh */}
+          
           <div>
             <label className="block text-sm font-medium mb-1">Ảnh sản phẩm</label>
             <input

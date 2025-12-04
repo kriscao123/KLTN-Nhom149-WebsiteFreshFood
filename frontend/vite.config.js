@@ -12,15 +12,15 @@ export default defineConfig({
     },
   },
   define: {
-    global: 'window', // Polyfill global thành window để khắc phục lỗi sockjs-client
+    global: 'window', 
   },
   server: {
     port: 5174,
     proxy: {
       '/api': {
-        target: 'https://websitebandogiadung-dqzs.onrender.com/',
+        target: 'https://nhfood-dqzs.onrender.com/',
         changeOrigin: true,
-        ws: true, // Kích hoạt proxy WebSocket
+        ws: true, 
         secure: false,
       },
     },
@@ -29,7 +29,6 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
-      // Tùy chọn để tối ưu hóa build nếu cần
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'axios', 'sockjs-client', '@stomp/stompjs'],

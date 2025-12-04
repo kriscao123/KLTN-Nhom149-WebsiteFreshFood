@@ -32,31 +32,7 @@ function Footer() {
                     <div>
                         <h3 className="text-xl font-bold mb-4">Danh mục sản phẩm</h3>
                         <ul className="space-y-2">
-                            {/* <li>
-                                <Link to="/products?category=kitchen" className="text-gray-400 hover:text-white">
-                                    Đồ dùng nhà bếp
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/products?category=electronics" className="text-gray-400 hover:text-white">
-                                    Thiết bị điện tử
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/products?category=furniture" className="text-gray-400 hover:text-white">
-                                    Nội thất
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/products?category=bathroom" className="text-gray-400 hover:text-white">
-                                    Đồ dùng phòng tắm
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/products?category=decoration" className="text-gray-400 hover:text-white">
-                                    Đồ trang trí
-                                </Link>
-                            </li> */}
+                            
                         </ul>
                     </div>
 
@@ -78,11 +54,7 @@ function Footer() {
                                     Điều khoản sử dụng
                                 </Link>
                             </li>
-                            <li>
-                                <Link to="/return-policy" className="hover:text-white">
-                                    Chính sách đổi trả
-                                </Link>
-                            </li>
+                            
                             <li>
                                 <Link to="/faq" className="hover:text-white">
                                     Hướng dẫn mua hàng

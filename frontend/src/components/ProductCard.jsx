@@ -6,15 +6,13 @@ const formatCurrency = (v) => (v ?? 0).toLocaleString("vi-VN")
 
 
 export default function ProductCard({ product }) {
-  const { _id, productName, imageUrl, unitPrice,listPrice } = product
+  const { _id, productName, imageUrl } = product
 
   const promoPrice = product.listPrice ?? null;
   const price     = product.unitPrice ?? 0;
   const hasPromo  = promoPrice && price < promoPrice;
   const discountPercent = hasPromo ? Math.round(100 - (price / promoPrice) * 100) : 0;
 
-  const promoLabel  = product.promoLabel || product.promo?.label || '';
-  const weightLabel = product.weightLabel || product.promo?.weight || '';
 
 
   return (

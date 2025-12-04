@@ -7,7 +7,6 @@ const router = express.Router();
 // Lấy danh sách tất cả người dùng
 router.get('/', async (req, res) => {
   try {
-    // populate roleId → lấy roleName
     const users = await User.find()
       .populate({
         path: 'roleId',
@@ -37,7 +36,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id).select('username email roleId');  // Lọc các trường cần thiết
+    const user = await User.findById(id).select('username email roleId');  
 
     if (!user) {
       return res.status(404).json({ message: 'Không tìm thấy người dùng' });

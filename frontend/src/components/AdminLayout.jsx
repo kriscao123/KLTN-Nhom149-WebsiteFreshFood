@@ -12,17 +12,15 @@ export default function AdminLayout() {
     const [error, setError] = useState(null)
     const navigate = useNavigate()
 
-    // Toggle sidebar
+    
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
 
-    // Handle logout
     const handleLogout = () => {
         clearUserFromLocalStorage()
         setUser(null)
         navigate("/login")
     }
 
-    // Validate admin user
     useEffect(() => {
         const storedUser = getUserFromLocalStorage()
         if (!storedUser || storedUser.role !== "Admin") {
@@ -34,7 +32,6 @@ export default function AdminLayout() {
         setIsLoading(false)
     }, [navigate])
 
-    // If loading
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -43,7 +40,6 @@ export default function AdminLayout() {
         )
     }
 
-    // If error or no admin user
     if (error || !user) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -66,7 +62,6 @@ export default function AdminLayout() {
 
     return (
         <div className="flex h-screen bg-gray-100 text-gray-800">
-            {/* Sidebar Menu */}
             <MenuAdmin
                 user={user}
                 isSidebarOpen={isSidebarOpen}
@@ -74,7 +69,6 @@ export default function AdminLayout() {
                 handleLogout={handleLogout}
             />
 
-            {/* Main Content */}
             <div className="flex flex-1 flex-col overflow-hidden">
                 <main className="flex-1 overflow-auto p-4 lg:p-6">
                     <Outlet />

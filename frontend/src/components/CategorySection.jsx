@@ -1,7 +1,5 @@
-"use client"
 import { motion } from "framer-motion"
 
-// Import icons (you can replace these with your actual icons)
 import { CookingPotIcon as Kitchen, ShowerHeadIcon as Shower, Bed, Sofa } from "lucide-react"
 
 const CategorySection = () => {

@@ -216,7 +216,7 @@ const CartPage = () => {
                             </Link>
                             <Link
                                 to="/products"
-                                className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+                                className="px-6 py-3 border border-green-50 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
                             >
                                 Tiếp tục mua sắm
                             </Link>
@@ -229,7 +229,7 @@ const CartPage = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="min-h-screen bg-green-50 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600"></div>
             </div>
         )
@@ -237,7 +237,7 @@ const CartPage = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-green-50 py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-3xl mx-auto">
                     <div className="bg-white shadow-md rounded-lg p-8 text-center">
                         <div className="flex justify-center mb-6">
@@ -260,7 +260,7 @@ const CartPage = () => {
 
     if (cartItems.length === 0) {
         return (
-            <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-green-50 py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-3xl mx-auto">
                     <div className="bg-white shadow-md rounded-lg p-8 text-center">
                         <div className="flex justify-center mb-6">
@@ -286,7 +286,7 @@ const CartPage = () => {
     const total = subtotal + shippingFee
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-green-50 py-8 px-4 sm:px-6 lg:px-8">
             {notification && (
                 <div
                     className={`fixed top-20 right-4 mt-9 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${

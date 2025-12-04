@@ -17,7 +17,6 @@ export default function App() {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('all');
 
-    // Thiết lập Dark Mode khi ứng dụng được mount
     useEffect(() => {
         setupDarkMode();
     }, []);
@@ -29,7 +28,6 @@ export default function App() {
 
     const handleCategorySelect = (category) => {
         setSelectedCategory(category);
-        // Cuộn đến phần sản phẩm
         document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
     };
 

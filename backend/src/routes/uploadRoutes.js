@@ -4,11 +4,9 @@ const AWS = require('aws-sdk');
 
 const router = express.Router();
 
-// không lưu file ra ổ đĩa, chỉ giữ trong RAM
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// cấu hình S3 (lấy từ .env)
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,

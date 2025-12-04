@@ -18,7 +18,6 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState({})
 
-    // Close modal when pressing Escape key
     useEffect(() => {
         const handleEscape = (e) => {
             if (e.key === "Escape" && isOpen) {
@@ -30,7 +29,6 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
         return () => window.removeEventListener("keydown", handleEscape)
     }, [isOpen, onClose])
 
-    // Prevent scrolling when modal is open
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden"
