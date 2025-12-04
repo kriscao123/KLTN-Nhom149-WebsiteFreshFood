@@ -14,4 +14,4 @@ app.register_blueprint(recommend_bp, url_prefix='/recommendations')
 app.register_blueprint(user_recommend_bp, url_prefix='/user-recommendations')
 
 if __name__ == '__main__':
-    app.run(port=5001, debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
