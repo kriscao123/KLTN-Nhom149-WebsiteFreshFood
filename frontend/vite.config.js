@@ -14,16 +14,8 @@ export default defineConfig({
   define: {
     global: 'window', 
   },
-  server: {
-    port: 5174,
-    proxy: {
-      '/api': {
-        target: 'https://nhfood-dqzs.onrender.com/',
-        changeOrigin: true,
-        ws: true, 
-        secure: false,
-      },
-    },
+   server: {
+    allowedHosts: ['kltn-nhom149-websitefreshfood.onrender.com']
   },
   build: {
     outDir: 'dist',
