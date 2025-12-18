@@ -8,11 +8,11 @@ from src.routes.user_recommendation import user_recommend_bp
 app = Flask(__name__)
 
 # Cho phép frontend (Vite) gọi sang AI API
-CORS(app, origins=["https://kltn-nhom149-websitefreshfood.onrender.com", "https://kltn-nhom149-websitefreshfood-backend.onrender.com"], supports_credentials=False)
+CORS(app, origins=["https://kltn-nhom149-websitefreshfood.onrender.com", "http://localhost:5173"], supports_credentials=False)
 
 # Đăng ký Blueprint cho các route
 app.register_blueprint(recommend_bp, url_prefix='/recommendations')
 app.register_blueprint(user_recommend_bp, url_prefix='/user-recommendations')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))

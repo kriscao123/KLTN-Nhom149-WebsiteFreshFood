@@ -76,43 +76,103 @@ def _compute_item_similarity(user_item: pd.DataFrame) -> pd.DataFrame:
 
     return sim_df
 
+def _safe_objectid(id_str: str):
+    try:
+        return ObjectId(id_str)
+    except Exception:
+        return None
+
+
+def _fetch_cart_product_ids(user_id: str) -> set[str]:
+    # Lấy sản phẩm đang nằm trong giỏ active của user
+    oid = _safe_objectid(user_id)
+    if oid is None:
+        return set()
+
+    cart = db.carts.find_one(
+        {'userId': oid, 'status': 'active'},
+        {'items.productId': 1}
+    )
+    if not cart:
+        return set()
+
+    items = cart.get('items', []) or []
+    return {str(it.get('productId')) for it in items if it.get('productId') is not None}
+
+
+def _fetch_purchased_product_ids(user_id: str) -> set[str]:
+    # Lấy sản phẩm user đã từng mua (từ orders)
+    oid = _safe_objectid(user_id)
+    if oid is None:
+        return set()
+
+    cursor = db.orders.find(
+        {
+            'customerId': oid,
+            'orderStatus': {'$ne': 'CANCELLED'},
+            'paymentStatus': {'$ne': 'Failed'},
+        },
+        {'orderItems.productId': 1}
+    )
+
+    purchased = set()
+    for doc in cursor:
+        for it in (doc.get('orderItems', []) or []):
+            pid = it.get('productId')
+            if pid is not None:
+                purchased.add(str(pid))
+    return purchased
+
 
 def get_recommendations_for_user(user_id: str, top_n: int = 10):
-    """Trả về danh sách product_id gợi ý cho user_id."""
     interactions_df = _fetch_interactions()
     if interactions_df.empty:
-        print(f"No interactions data found for user {user_id}. Returning empty list.")
         return []
 
     user_item = _build_user_item_matrix(interactions_df)
-    
+
+    # Cold-start: user chưa có interaction
+    if user_id not in user_item.index:
+        return []
+
     sim_df = _compute_item_similarity(user_item)
-    
+    if sim_df.empty:
+        return []
+
     user_vector = user_item.loc[user_id]
+
+    # 1) Loại các sản phẩm đã tương tác (mọi loại interaction)
     interacted_items = set(user_vector[user_vector > 0].index.tolist())
 
-    # Lấy danh sách các sản phẩm chưa được tương tác
-    candidate_items = sim_df.columns.difference(interacted_items).tolist()
-   
-    
+    # 2) Loại các sản phẩm đang trong giỏ active
+    cart_items = _fetch_cart_product_ids(user_id)
+
+    # 3) Loại các sản phẩm đã từng mua
+    purchased_items = _fetch_purchased_product_ids(user_id)
+
+    excluded_items = interacted_items | cart_items | purchased_items
+
+    candidate_items = [pid for pid in sim_df.columns.tolist() if pid not in excluded_items]
+    if not candidate_items:
+        return []
+
+    # Chỉ dùng các item user đã tương tác để tính điểm (tối ưu)
+    user_positive = user_vector[user_vector > 0]
+    if user_positive.empty:
+        return []
+
     scores = {}
     for item_id in candidate_items:
-        similar_series = sim_df[item_id]
+        sims = sim_df.loc[item_id, user_positive.index]
+        score = float((sims * user_positive).sum())
+        if score > 0:
+            scores[item_id] = score
 
-        for other_item_id, sim_score in similar_series.items():
-        
-            if sim_score <= 0:
-                continue
+    if not scores:
+        return []
 
-            scores[item_id] = scores.get(item_id, 0.0) + (
-                sim_score * float(user_vector[other_item_id])
-            )
-        
-        
     sorted_items = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    top_items = [item_id for item_id, _ in sorted_items[:top_n]]
-    
-    return top_items
+    return [item_id for item_id, _ in sorted_items[:top_n]]
 
 def get_recommended_products_for_user(user_id: str, top_n: int = 10):
     """
