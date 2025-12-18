@@ -11,6 +11,7 @@ app = Flask(__name__)
 CORS(app, origins=["https://kltn-nhom149-websitefreshfood.onrender.com", "http://localhost:5173"], supports_credentials=False)
 
 # Đăng ký Blueprint cho các route
+
 app.register_blueprint(recommend_bp, url_prefix='/recommendations')
 app.register_blueprint(user_recommend_bp, url_prefix='/user-recommendations')
 
