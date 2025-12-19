@@ -12,9 +12,16 @@ const orderSchema = new mongoose.Schema({
   ],
   orderStatus: { type: String, enum: ['PENDING', 'CONFIRMED', 'SHIPPING','DELIVERED','CANCELLED'], default: 'PENDING' },
   paymentMethod: { type: String, required: true },
-  paymentStatus: { type: String, enum: ['Pending', 'Completed', 'Failed'], default: 'Pending' },
+  paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Failed'], default: 'Pending' },
   shipAddress: { type: Object, required: true }, 
-  totalAmount: { type: Number, required: true }
+  totalAmount: { type: Number, required: true },
+  sepay: {
+    paymentCode: { type: String, index: true },     // CODE ĐỂ MATCH WEBHOOK (data.code)
+    qrUrl: { type: String },
+    paidAt: { type: Date },
+    referenceCode: { type: String },                // data.referenceCode
+    rawWebhook: { type: Object }                    // LƯU LOG (TUỲ CHỌN)
+  }
 });
 
 module.exports = mongoose.model('Order', orderSchema);

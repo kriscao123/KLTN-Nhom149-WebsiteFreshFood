@@ -12,6 +12,8 @@ const cartRoutes=require('./src/routes/cartRoutes');
 const orderRoutes=require('./src/routes/orderRoutes');
 const userRoutes=require('./src/routes/userRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
+const sepayQRCodeRoutes = require('./src/routes/sepayQRCodeRoutes');
+const sepayWebhookRoutes = require('./src/routes/sepayWebhookRoutes');
 
 const app = express();
 app.use(cors({ origin: ['https://kltn-nhom149-websitefreshfood.onrender.com','http://localhost:5173'], credentials: true }));
@@ -28,6 +30,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/users',userRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/sepay', sepayQRCodeRoutes);
+app.use('/api/sepay-webhook', sepayWebhookRoutes);
 
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');      

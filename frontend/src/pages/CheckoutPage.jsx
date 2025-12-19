@@ -1,6 +1,3 @@
-// CheckoutPage.jsx
-"use client"
-
 import { useState, useEffect } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { getUserFromLocalStorage } from "../assets/js/userData"
@@ -90,6 +87,7 @@ const CheckoutPage = () => {
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false)
   const [isSepayModalOpen, setIsSepayModalOpen] = useState(false)
   const [sepayPayment, setSepayPayment] = useState(null)
+  // const [qrCodeUrl, setQrCodeUrl] = useState(""); // URL của mã QR thanh toán
 
   const user = getUserFromLocalStorage()
   const userId = user?.userId || null
@@ -237,20 +235,25 @@ const calculateSummary = () => {
   setIsLocationModalOpen(false)
   }
 
-  // ====== SEPay (tạm chặn nếu chưa bật) ======
-  const handleSepayPayment = async () => {
-    if (!ENABLE_SEPAY) {
-      toast.info("SEPay hiện chưa được bật.")
-      return
-    }
-    // TODO: implement khi backend thanh toán sẵn sàng
-  }
 
-  const handleSepaySuccess = async () => {
+  
+  const handleSepaySuccess = async (payload) => {
     if (!ENABLE_SEPAY) return
-    // TODO: implement khi backend thanh toán sẵn sàng
+
+    setIsSepayModalOpen(false)
+
+    const paidOrderId = payload?.orderId || sepayPayment?.orderId || sepayPayment?.paymentId
+
+    showNotification("success", "THANH TOÁN SEPAY THÀNH CÔNG! ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC GHI NHẬN.")
+
+    // 4) CHUYỂN SANG MÀN HÌNH THÀNH CÔNG (GIỐNG COD)
+    if (paidOrderId) {
+      setOrderSuccess(paidOrderId)
+    }
+
+    // 5) DỌN STATE SEPAY (TRÁNH DỮ LIỆU CŨ)
+    setSepayPayment(null)
   }
-  // ==========================================
 
 
 const handleCheckout = async () => {
@@ -305,12 +308,37 @@ const handleCheckout = async () => {
 
   try {
     const response = await api.post('/cart/checkout', orderData);
-    if (response.data) {
-      console.log('Đặt hàng thành công:', response.data);
-      setOrderSuccess(response.data.order._id); // Lưu lại ID đơn hàng thành công
+    if (response.data?.order?._id) {
+      console.log("Đặt hàng thành công, ID đơn hàng:", response.data.order);
+    const createdOrder = response.data.order;
+
+    // NẾU SEPAY → SINH QR NGAY, MỞ MODAL QR
+    if (paymentMethod === "SePay") {
+      const qrRes = await api.post("/sepay/generate-qr", { orderId: createdOrder._id });
+
+      const qrUrl = qrRes?.data?.qrUrl;
+      const amount = qrRes?.data?.amount;
+
+      if (!qrUrl) {
+        toast.error("Không nhận được qrUrl từ server");
+        return;
+      }
+
+      setSepayPayment({
+        paymentId: createdOrder._id,
+        qrCodeUrl: qrUrl,
+        amount: amount,
+        transactionTimeout: 300,
+        paymentCode: qrRes?.data?.paymentCode, // optional
+    });
+
+      setIsSepayModalOpen(true);
+    } else {
+      // COD / PHƯƠNG THỨC KHÁC
+      setOrderSuccess(createdOrder);
       showNotification("success", "Đặt hàng thành công!");
-    }
-  } catch (error) {
+    } 
+  } }catch (error) {
     console.error('Lỗi khi thanh toán:', error);
     showNotification("error", error?.response?.data?.message || "Không thể thanh toán. Vui lòng thử lại.");
   }
@@ -334,53 +362,6 @@ const buildShipAddress = () => {
   }
 }
 
-
-
-  // Xử lý đặt hàng (non-SEPay)
-  const handleSubmitOrder = async () => {
-    if (!deliveryAddress.trim()) {
-      showNotification("error", "Vui lòng nhập địa chỉ giao hàng")
-      return
-    }
-    if (!cartItems.length || !products.length) {
-      showNotification("error", "Giỏ hàng trống hoặc không tải được sản phẩm")
-      return
-    }
-    const { subtotal } = calculateSummary()
-    if (subtotal <= 0) {
-      showNotification("error", "Tổng tiền hàng phải lớn hơn 0")
-      return
-    }
-
-    try {
-      setIsSubmitting(true)
-      const payload = {
-        userId,
-        address: deliveryAddress,
-        paymentMethod: paymentMethod || "COD" // COD mặc định
-      }
-      const res = await api.post(`/cart/checkout`, payload)
-      if (!res || !res.data) {
-        throw new Error("Phản hồi không hợp lệ từ máy chủ")
-      }
-      // Clear giỏ (phòng khi backend chưa tự clear)
-      for (const it of cartItems) {
-        try {
-          await api.delete(`/cart/remove`, { data: { userId, productId: it.productId } })
-        } catch (e) {
-          console.warn("Không thể xoá item sau checkout:", it?.productId, e?.message)
-        }
-      }
-      setOrderSuccess("SUCCESS")
-      showNotification("success", "Đặt hàng thành công!")
-    } catch (err) {
-      console.error("Lỗi khi đặt hàng:", err)
-      showNotification("error", err?.response?.data?.message || err.message || "Không thể đặt hàng. Vui lòng thử lại.")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   // Hiển thị chi tiết đơn hàng (client-side)
   const showOrderDetails = async (customOrderId = orderSuccess) => {
     if (!customOrderId || !user || !cartItems.length) return
@@ -391,11 +372,6 @@ const buildShipAddress = () => {
       status: "PENDING"
     }
 
-    const formatCurrency = amount => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
-    const formatDate = dateString => {
-      const date = new Date(dateString)
-      return date.toLocaleDateString("vi-VN", { year: "numeric", month: "2-digit", day: "2-digit" })
-    }
     const getPaymentMethodText = methodId => {
       switch (methodId) {
         case "CreditCard": return "Thẻ VISA/MasterCard"
@@ -613,14 +589,6 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width:
 
   const { subtotal, shipping, total } = calculateSummary()
 
-  // Ẩn phương thức SEPay nếu chưa bật
-  const paymentMethods = [
-    { id: "CreditCard", name: "Thẻ VISA/MasterCard" },
-    { id: "MoMo", name: "MoMo" },
-    { id: "COD", name: "Thanh toán khi nhận hàng (COD)" },
-    ...(ENABLE_SEPAY ? [{ id: "PM004", name: "SEPay QR" }] : [])
-  ]
-
   return (
     <div className="min-h-screen bg-green-50 py-8 px-4 sm:px-6 lg:px-8">
       {notification && (
@@ -773,7 +741,7 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width:
                     qrCodeUrl={sepayPayment.qrCodeUrl}
                     amount={sepayPayment.amount}
                     transactionTimeout={sepayPayment.transactionTimeout}
-                    onSuccess={handleSepaySuccess}
+                    onSuccess={(payload) => handleSepaySuccess(payload)}
                   />
                 </div>
               </div>
@@ -783,10 +751,9 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width:
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Phương thức thanh toán</h2>
               <div className="space-y-4">
                 {[
-                  { id: "CreditCard", name: "Thẻ VISA/MasterCard" },
+                  { id: "SePay", name: "Thanh toán với SePay" },
                   { id: "MoMo", name: "MoMo" },
                   { id: "COD", name: "Thanh toán khi nhận hàng (COD)" },
-                  ...(ENABLE_SEPAY ? [{ id: "PM004", name: "SEPay QR" }] : [])
                 ].map(method => (
                   <div key={method.id} className="flex items-center">
                     <input
